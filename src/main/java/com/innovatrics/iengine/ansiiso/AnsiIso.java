@@ -749,7 +749,7 @@ public class AnsiIso {
      * @param parameter Contains the code of the template parameter to be set.
      * @param value Contains the value for the specified parameter
      */
-    public void ISO_SetTemplateParameter(byte[] isoTemplate, TemplateParameter parameter, int value) {
+    public void isoSetTemplateParameter(byte[] isoTemplate, TemplateParameter parameter, int value) {
         checkNotNull("isoTemplate", isoTemplate);
         checkNotNull("parameter", parameter);
         check(AnsiIsoNative.INSTANCE.ISO_SetTemplateParameter(isoTemplate, parameter.cval, value));
