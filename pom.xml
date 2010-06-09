@@ -7,9 +7,23 @@
     <version>1.0-SNAPSHOT</version>
     <name>iengine-ansi-iso</name>
     <url>http://www.innovatrics.com</url>
+    <inceptionYear>2010</inceptionYear>
+    <description>Provides Java bindings for IEngine</description>
+    <organization>
+        <name>Innovatrics</name>
+        <url>http://www.innovatrics.com</url>
+    </organization>
+    <scm>
+        <connection>scm:git:ssh://git@github.com:lunter/ansi_iso_sdk_java_connector.git</connection>
+        <url>https://github.com/lunter/ansi_iso_sdk_java_connector</url>
+    </scm>
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/lunter/ansi_iso_sdk_java_connector/issues</url>
+    </issueManagement>
     <developers>
         <developer>
-            <id>vyzivus</id>
+            <id>mvy</id>
             <name>Martin Vysny</name>
             <email>vysny@baka.sk</email>
             <timezone>1</timezone>
@@ -62,7 +76,6 @@
             <groupId>com.sun.jna</groupId>
             <artifactId>jna</artifactId>
             <version>3.0.9</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
 </project>
