@@ -5,7 +5,12 @@ package com.innovatrics.iengine.ansiiso;
  */
 public class RawImage {
 
-    public int width;
-    public int height;
-    public byte[] raw;
+    public RawImage(int width, int height, byte[] raw) {
+        this.width = width;
+        this.height = height;
+        this.raw = raw;
+    }
+    public final int width;
+    public final int height;
+    public final byte[] raw;
 }
