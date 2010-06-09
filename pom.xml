@@ -14,7 +14,7 @@
         <url>http://www.innovatrics.com</url>
     </organization>
     <scm>
-        <connection>scm:git:ssh://git@github.com:lunter/ansi_iso_sdk_java_connector.git</connection>
+        <connection>scm:git:git@github.com:lunter/ansi_iso_sdk_java_connector.git</connection>
         <url>https://github.com/lunter/ansi_iso_sdk_java_connector</url>
     </scm>
     <issueManagement>
@@ -62,6 +62,14 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <preparationGoals>clean install</preparationGoals>
+                    <goals>clean install</goals>
+                </configuration>
             </plugin>
         </plugins>
     </build>
