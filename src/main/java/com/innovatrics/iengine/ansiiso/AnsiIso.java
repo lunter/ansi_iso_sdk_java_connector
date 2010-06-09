@@ -677,15 +677,84 @@ public class AnsiIso {
         return result;
     }
 
-//    public int ANSI_LoadTemplate(final /*char*/ byte[] filename, byte[] ansiTemplate);
-//
-//    public int ANSI_RemoveMinutiae(byte[] inTemplate, int maximumMinutiaeCount, IntByReference length, byte[] outTemplate);
-//
-//    public int ANSI_SaveTemplate(final byte[] /*char*/ filename, final byte[] ansiTemplate);
-//
-//    public int ISO_GetTemplateParameter(final byte[] isoTemplate, /*IENGINE_TEMPLATE_PARAMETER*/ int parameter, IntByReference value);
-//
-//    public int ISO_SetTemplateParameter(byte[] isoTemplate, /*IENGINE_TEMPLATE_PARAMETER*/ int parameter, int value);
+    /**
+     * Loads ANSI/INCITS 378 compliant template from file.<p/>
+     * This function loads an ANSI/INCITS 378 compliant template from file.
+     * @param filename Name of the file where the template will be saved
+     * @return  the ANSI/INCITS 378 compatible template. The
+    maximal size of ANSI/INCITS template is 1568 bytes.
+     */
+    public byte[] ansiLoadTemplate(final String filename) {
+        checkNotNull("filename", filename);
+        final byte[] result = new byte[IENGINE_MAX_ANSI_TEMPLATE_SIZE];
+        check(AnsiIsoNative.INSTANCE.ANSI_LoadTemplate(filename.getBytes(), result));
+        return result;
+
+    }
+
+    /**
+     * Removes minutiae points from an ANSI template.<p/>
+     * This function limits maximal number of minutiae points contained in an ANSI/INCITS 378 compliant fingerprint template. If
+    the input template contains more minutiae points than the provided limit, extra minutae point are removed from the template.
+    The truncation is made by peeling off minutiae that are farthest from the point of gravity of the minutiae set.
+     * @param inTemplate  Reference ANSI/INCITS 378 template
+     * @param maximumMinutiaeCount     The maximal number of minutiae that will be stored in the output template. If current minutiae count is less or equal to this limit, the output template will be
+    a copy of the input template.
+     * @return resulting truncated ANSI/INCITS 378 compliant template
+     */
+    public byte[] ansiRemoveMinutiae(byte[] inTemplate, int maximumMinutiaeCount) {
+        checkNotNull("inTemplate", inTemplate);
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ANSI_RemoveMinutiae(inTemplate, maximumMinutiaeCount, length, null));
+        final byte[] result = new byte[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.ANSI_RemoveMinutiae(inTemplate, maximumMinutiaeCount, length, result));
+        return result;
+    }
+
+    /**
+     * Stores ANSI/INCITS 378 compliant template to file.<p/>
+     * This function stores the input ANSI/INCITS 378 compliant template to a file
+     * @param filename Name of the file where the input template will be saved
+     * @param ansiTemplate ANSI/INCITS 378 template
+     */
+    public void ansiSaveTemplate(final String filename, final byte[] ansiTemplate) {
+        checkNotNull("filename", filename);
+        checkNotNull("ansiTemplate", ansiTemplate);
+        check(AnsiIsoNative.INSTANCE.ANSI_SaveTemplate(filename.getBytes(), ansiTemplate));
+    }
+
+    /**
+     * Get specific template parameters.<p/>
+     * This function retrieves the value of a specific template parameter stored in record header or in finger view header of the input
+    ISO/IEC 19794-2 template. If specified template contains multiple finger views, this function retrieves information related to
+    the first finger view (finger view with the lowest index number).
+     * @param isoTemplate ISO/IEC 19794-2 template
+     * @param parameter  Contains the code of the template parameter
+     * @return On return, contains the value of the specified parameter
+     */
+    public int isoGetTemplateParameter(final byte[] isoTemplate, TemplateParameter parameter) {
+        checkNotNull("isoTemplate", isoTemplate);
+        checkNotNull("parameter", parameter);
+        final IntByReference result = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ISO_GetTemplateParameter(isoTemplate, parameter.cval, result));
+        return result.getValue();
+    }
+
+    /**
+     * Set specific template parameter.<p/>
+     * This function modifies the information concerning specific template parameters stored in record header or in finger view
+    header of an ISO/IEC 19794-2 template. If specified template contains multiple finger views, this function modifies the first
+    finger view (finger view with the lowest index number).
+     * @param isoTemplate On input, this parameter should contain a valid ISO/IEC 19794-2 template. On return, the original template is modified
+     * @param parameter Contains the code of the template parameter to be set.
+     * @param value Contains the value for the specified parameter
+     */
+    public void ISO_SetTemplateParameter(byte[] isoTemplate, TemplateParameter parameter, int value) {
+        checkNotNull("isoTemplate", isoTemplate);
+        checkNotNull("parameter", parameter);
+        check(AnsiIsoNative.INSTANCE.ISO_SetTemplateParameter(isoTemplate, parameter.cval, value));
+    }
+
     /**
      * Returns specified finger view from ISO/IEC 19794-2 compliant template.<p/>
      * This function reads specified finger view from given ISO/IEC 19794-2 compliant template and returns new ISO/IEC 19794-2
@@ -802,5 +871,28 @@ public class AnsiIso {
         checkNotNull("isoTemplate", isoTemplate);
         check(AnsiIsoNative.INSTANCE.ISO_SaveTemplate(filename.getBytes(), isoTemplate));
     }
-//    public int IEngine_ConvertTemplate(/*IENGINE_TEMPLATE_FORMAT*/int inputTemplateType, byte[] inputTemplate, /*IENGINE_TEMPLATE_FORMAT*/ int outputTemplateType, IntByReference length, byte[] outputTemplate);
+
+    /**
+     * Converts between different template formats.<p/>
+     * This function converts an input template to an equivalent template in a format specified by user. Templates with multiple
+    finger views are supported by this function. When converting to {@link IEngineTemplateFormat#ILO_SID_TEMPLATE} format, all "fixed" values are set
+    according to the specification (see http://www.ilo.org/public/english/dialogue/sector/papers/maritime/sid0002.pdf Annex B for
+    more details). Similarly, the resulting template will always have two fingers. If the input template contains only one (or none)
+    fingerview, the resulting ILO SID template will have one (or two) "unenrolled" fingers with finger quality set to 0x65
+    (enrollment failed due to a physical disability).
+     * @param inputTemplateType Specifies the format of the input template
+     * @param inputTemplate Reference template
+     * @param outputTemplateType Specifies the format of the output template
+     * @return the resulting template
+     */
+    public byte[] iengineConvertTemplate(IEngineTemplateFormat inputTemplateType, byte[] inputTemplate, IEngineTemplateFormat outputTemplateType) {
+        checkNotNull("inputTemplateType", inputTemplateType);
+        checkNotNull("inputTemplate", inputTemplate);
+        checkNotNull("outputTemplateType", outputTemplateType);
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.IEngine_ConvertTemplate(inputTemplateType.ordinal(), inputTemplate, outputTemplateType.ordinal(), length, null));
+        final byte[] result = new byte[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.IEngine_ConvertTemplate(inputTemplateType.ordinal(), inputTemplate, outputTemplateType.ordinal(), length, result));
+        return result;
+    }
 }
