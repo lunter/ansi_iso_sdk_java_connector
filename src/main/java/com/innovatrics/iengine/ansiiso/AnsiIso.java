@@ -581,7 +581,7 @@ public class AnsiIso {
      * @param parameter Contains the code of the template parameter
      * @return On return, contains the value of the specified parameter
      */
-    public int ANSI_GetTemplateParameter(final byte[] ansiTemplate, TemplateParameter parameter) {
+    public int ansiGetTemplateParameter(final byte[] ansiTemplate, TemplateParameter parameter) {
         checkNotNull("ansiTemplate", ansiTemplate);
         checkNotNull("parameter", parameter);
         final IntByReference result = new IntByReference();
@@ -598,20 +598,85 @@ public class AnsiIso {
      * @param parameter Contains the code of the template parameter to be set.
      * @param value Contains the value for the specified parameter
      */
-    public void ANSI_SetTemplateParameter(byte[] ansiTemplate, TemplateParameter parameter, int value) {
+    public void ansiSetTemplateParameter(byte[] ansiTemplate, TemplateParameter parameter, int value) {
         checkNotNull("ansiTemplate", ansiTemplate);
         checkNotNull("parameter", parameter);
         check(AnsiIsoNative.INSTANCE.ANSI_SetTemplateParameter(ansiTemplate, parameter.cval, value));
     }
 
-//    public int ANSI_GetFingerView(final byte[] ansiTemplate, int fingerView, byte[] outTemplate);
-//
-//    public int ANSI_DrawMinutiae(final byte[] ansiTemplate, int width, int height, byte[] /*char*/ inputImage, byte[] /*char*/ outputBmpImage, IntByReference outputImageLength);
-//
-//    public int ANSI_GetMinutiae(final byte[] ansiTemplate, IEngineMinutiae[] minutiae, IntByReference minutiaeCount);
-//
-//    public int ANSI_MergeTemplates(final byte[] referenceTemplate, final byte[] addedTemplate, IntByReference length, byte[] outTemplate);
-//
+    /**
+     * Returns specified finger view from ANSI/INCITS 378 compliant template.<p/>
+     * This function reads specified finger view from given ANSI/INCITS 378 compliant template and returns new ANSI/INCITS 378
+    compliant template containing only single finger view. Record header of the new template is a copy of the record header of
+    the input template.
+     * @param ansiTemplate ANSI/INCITS 378 template
+     * @param fingerView Index number of the finger view that will be returned in the newly created template. 0 is the first index number, 1 the second, etc.
+     * @return resulting ANSI/INCITS 378 template containing the specified finger view. The maximal size of such
+    template is 1568 bytes.
+     */
+    public byte[] ansiGetFingerView(final byte[] ansiTemplate, int fingerView) {
+        checkNotNull("ansiTemplate", ansiTemplate);
+        if (fingerView < 0) {
+            throw new IllegalArgumentException("Parameter fingerView: invalid value " + fingerView + ": Must be >=0");
+        }
+        final byte[] result = new byte[IENGINE_MAX_ANSI_TEMPLATE_SIZE];
+        check(AnsiIsoNative.INSTANCE.ANSI_GetFingerView(ansiTemplate, fingerView, result));
+        return result;
+    }
+
+    /**
+     * Returns bmp image with minutiae points marked over given fingerprint.<p/>
+     * This function draws minutiae points associated with the given fingerprint template and returns the result as bmp image in
+    memory. If inputImage is NULL, minutiae are drawn on a blank background, otherwise inputImage is used as background.
+     * @param ansiTemplate ANSI/INCITS 378 compliant fingerprint template
+     * @param width Width of inputImage, if inputImage is NULL, this value is ignored
+     * @param height Height of inputImage, if inputImage is NULL, this value is ignored
+     * @param inputImage Raw image representing fingerprint from which fingerprint template was extracted
+     * @return the resulting image in bmp format
+     */
+    public byte[] ansiDrawMinutiae(final byte[] ansiTemplate, int width, int height, byte[] inputImage) {
+        checkNotNull("ansiTemplate", ansiTemplate);
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ANSI_DrawMinutiae(ansiTemplate, width, height, inputImage, null, length));
+        final byte[] result = new byte[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.ANSI_DrawMinutiae(ansiTemplate, width, height, inputImage, result, length));
+        return result;
+    }
+
+    /**
+     * Returns minutiae stored in ANSI/INCITS 378 compliant template.<p/>
+     * This function returns minutiae angles and minutiae positions stored in ANSI/INCITS 378 compliant template
+     * @param ansiTemplate ANSI/INCITS 378 template
+     * @return Initialized minutiae array (maximal minutiae count in ANSI/INCITS 378 template is 256).
+     */
+    public IEngineMinutiae[] ansiGetMinutiae(final byte[] ansiTemplate) {
+        checkNotNull("ansiTemplate", ansiTemplate);
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ANSI_GetMinutiae(ansiTemplate, null, length));
+        final IEngineMinutiae[] result = new IEngineMinutiae[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.ANSI_GetMinutiae(ansiTemplate, result, length));
+        return result;
+    }
+
+    /**
+     * Combines finger views from two ANSI/INCITS 378 templates into one common template.<p/>
+     * This function reads finger views from two ANSI/INCITS 378 templates and merges them into one resulting template. Each
+    input template may contain zero, one or multiple finger views. Record header of the resulting template is copied from the
+    record header of the reference template.
+     * @param referenceTemplate Reference ANSI/INCITS 378 template
+     * @param addedTemplate ANSI/INCITS 378 template. Finger views from this template will be combined with finger views from the reference template.
+     * @return the resulting ANSI/INCITS 378 compliant template containing all finger views from input templates
+     */
+    public byte[] ansiMergeTemplates(final byte[] referenceTemplate, final byte[] addedTemplate) {
+        checkNotNull("referenceTemplate", referenceTemplate);
+        checkNotNull("addedTemplate", addedTemplate);
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ANSI_MergeTemplates(referenceTemplate, addedTemplate, length, null));
+        final byte[] result = new byte[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.ANSI_MergeTemplates(referenceTemplate, addedTemplate, length, result));
+        return result;
+    }
+
 //    public int ANSI_LoadTemplate(final /*char*/ byte[] filename, byte[] ansiTemplate);
 //
 //    public int ANSI_RemoveMinutiae(byte[] inTemplate, int maximumMinutiaeCount, IntByReference length, byte[] outTemplate);
@@ -621,7 +686,6 @@ public class AnsiIso {
 //    public int ISO_GetTemplateParameter(final byte[] isoTemplate, /*IENGINE_TEMPLATE_PARAMETER*/ int parameter, IntByReference value);
 //
 //    public int ISO_SetTemplateParameter(byte[] isoTemplate, /*IENGINE_TEMPLATE_PARAMETER*/ int parameter, int value);
-
     /**
      * Returns specified finger view from ISO/IEC 19794-2 compliant template.<p/>
      * This function reads specified finger view from given ISO/IEC 19794-2 compliant template and returns new ISO/IEC 19794-2
@@ -631,7 +695,7 @@ public class AnsiIso {
      * @param fingerView Index number of the finger view that will be returned in the newly created template. 0 is the first index number, 1 the second, etc.
      * @return the resulting ISO/IEC 19794-2 template containing the specified finger
      */
-    public byte[] ISO_GetFingerView(final byte[] isoTemplate, int fingerView) {
+    public byte[] isoGetFingerView(final byte[] isoTemplate, int fingerView) {
         checkNotNull("isoTemplate", isoTemplate);
         if (fingerView < 0) {
             throw new IllegalArgumentException("Parameter fingerView: invalid value " + fingerView + ": Must be >=0");
@@ -651,7 +715,7 @@ public class AnsiIso {
      * @param inputImage Raw image representing fingerprint from which fingerprint template was extracted
      * @return the resulting image, in bmp format
      */
-    public byte[] ISO_DrawMinutiae(final byte[] isoTemplate, int width, int height, byte[] inputImage) {
+    public byte[] isoDrawMinutiae(final byte[] isoTemplate, int width, int height, byte[] inputImage) {
         checkNotNull("isoTemplate", isoTemplate);
         final IntByReference outputImageLength = new IntByReference();
         check(AnsiIsoNative.INSTANCE.ISO_DrawMinutiae(isoTemplate, width, height, inputImage, null, outputImageLength));
@@ -660,15 +724,83 @@ public class AnsiIso {
         return result;
     }
 
-//    public int ISO_GetMinutiae(final byte[] isoTemplate, IEngineMinutiae[] minutiae, IntByReference minutiaeCount);
-//
-//    public int ISO_MergeTemplates(final byte[] referenceTemplate, final byte[] addedTemplate, IntByReference length, byte[] outTemplate);
-//
-//    public int ISO_LoadTemplate(final byte[] /*char*/ filename, byte[] isoTemplate);
-//
-//    public int ISO_RemoveMinutiae(byte[] inTemplate, int maximumMinutiaeCount, IntByReference length, byte[] outTemplate);
-//
-//    public int ISO_SaveTemplate(final /*char*/ byte[] filename, final byte[] isoTemplate);
-//
+    /**
+     * Returns minutiae stored in ISO/IEC 19794-2 compliant template.<p/>
+     * This function returns minutiae angles and minutiae positions stored in ISO/IEC 19794-2 compliant template
+     * @param isoTemplate ISO/IEC 19794-2 template
+     * @return Initialized minutiae array. Maximal minutiae count in ISO/IEC 19794-2 template is 256
+     */
+    public IEngineMinutiae[] isoGetMinutiae(final byte[] isoTemplate) {
+        checkNotNull("isoTemplate", isoTemplate);
+        final IntByReference minutiaeCount = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ISO_GetMinutiae(isoTemplate, null, minutiaeCount));
+        final IEngineMinutiae[] result = new IEngineMinutiae[minutiaeCount.getValue()];
+        check(AnsiIsoNative.INSTANCE.ISO_GetMinutiae(isoTemplate, result, minutiaeCount));
+        return result;
+    }
+
+    /**
+     * Combines finger views from two ISO/IEC 19794-2 templates into one common template.<p/>
+     * This function reads finger views from two ISO/IEC 19794-2 templates and merges them into one resulting template. Each
+    input template may contain zero, one or multiple finger views. Record header of the resulting template is copied from the
+    record header of the reference template.
+     * @param referenceTemplate Reference ISO/IEC 19794-2 template
+     * @param addedTemplate  ISO/IEC 19794-2 template. Finger views from this template will be combined with finger views from the reference template.
+     * @return  the resulting ISO/IEC 19794-2 compliant template containing all finger views from input templates
+     */
+    public byte[] isoMergeTemplates(final byte[] referenceTemplate, final byte[] addedTemplate) {
+        checkNotNull("referenceTemplate", referenceTemplate);
+        checkNotNull("addedTemplate", addedTemplate);
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ISO_MergeTemplates(referenceTemplate, addedTemplate, length, null));
+        final byte[] result = new byte[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.ISO_MergeTemplates(referenceTemplate, addedTemplate, length, result));
+        return result;
+    }
+
+    /**
+     * Loads ISO/IEC 19794-2 compliant template from file.<p/>
+     * This function loads an ISO/IEC 19794-2 compliant template from file
+     * @param filename Name of the file where the template will be saved
+     * @return the ISO/IEC 19794-2 compatible template. The
+    maximal size of ISO/IEC 19794-2 template is 1566 bytes.
+     */
+    public byte[] isoLoadTemplate(final String filename) {
+        checkNotNull("filename", filename);
+        final byte[] result = new byte[IENGINE_MAX_ISO_TEMPLATE_SIZE];
+        check(AnsiIsoNative.INSTANCE.ISO_LoadTemplate(filename.getBytes(), result));
+        return result;
+    }
+
+    /**
+     * Removes minutiae points from an ISO template.<p/>
+     * This function limits maximal number of minutiae points contained in an ISO/IEC 19794-2 compliant fingerprint template. If the
+    input template contains more minutiae points than the provided limit, extra minutae point are removed from the template.
+    The truncation is made by peeling off minutiae that are farthest from the point of gravity of the minutiae set.
+     * @param inTemplate Reference ISO/IEC 19794-2 template
+     * @param maximumMinutiaeCount     The maximal number of minutiae that will be stored in the output template. If current minutiae count is less or equal to this limit, the output template will be
+    a copy of the input template.
+     * @return resulting truncated ISO/IEC 19794-2 compliant template
+     */
+    public byte[] isoRemoveMinutiae(byte[] inTemplate, int maximumMinutiaeCount) {
+        checkNotNull("inTemplate", inTemplate);
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ISO_RemoveMinutiae(inTemplate, maximumMinutiaeCount, length, null));
+        final byte[] result = new byte[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.ISO_RemoveMinutiae(inTemplate, maximumMinutiaeCount, length, result));
+        return result;
+    }
+
+    /**
+     * Stores ISO/IEC 19794-2 compliant template to file.<p/>
+     * This function stores the input ISO/IEC 19794-2 compliant template to a file
+     * @param filename Name of the file where the input template will be saved
+     * @param isoTemplate
+     */
+    public void isoSaveTemplate(final String filename, final byte[] isoTemplate) {
+        checkNotNull("filename", filename);
+        checkNotNull("isoTemplate", isoTemplate);
+        check(AnsiIsoNative.INSTANCE.ISO_SaveTemplate(filename.getBytes(), isoTemplate));
+    }
 //    public int IEngine_ConvertTemplate(/*IENGINE_TEMPLATE_FORMAT*/int inputTemplateType, byte[] inputTemplate, /*IENGINE_TEMPLATE_FORMAT*/ int outputTemplateType, IntByReference length, byte[] outputTemplate);
 }

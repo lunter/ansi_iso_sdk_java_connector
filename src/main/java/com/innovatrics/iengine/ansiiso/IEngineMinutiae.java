@@ -1,9 +1,11 @@
 package com.innovatrics.iengine.ansiiso;
 
+import com.sun.jna.Structure;
+
 /**
  * Structure representing a particular minutia (distinctive fingerprint feature found in fingerprint skeleton, such as a bifurcation or an ending).
  */
-public class IEngineMinutiae {
+public class IEngineMinutiae extends Structure {
     /**
      * Minutia angle encoded in one byte. Valid range: 0-255.
      */
