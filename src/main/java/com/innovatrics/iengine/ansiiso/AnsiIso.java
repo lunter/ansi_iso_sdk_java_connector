@@ -152,13 +152,13 @@ public class AnsiIso {
         check(AnsiIsoNative.INSTANCE.IEngine_Terminate());
     }
 
-    public IEngineVersion IEngine_GetVersion(IEngineVersion version) {
+    public IEngineVersion getVersion(IEngineVersion version) {
         final IEngineVersion result = new IEngineVersion();
         check(AnsiIsoNative.INSTANCE.IEngine_GetVersion(result));
         return result;
     }
 
-    public void IEngine_SetLicenseContent(byte[] licenseContent, int length) {
+    public void setLicenseContent(byte[] licenseContent, int length) {
         check(AnsiIsoNative.INSTANCE.IEngine_SetLicenseContent(licenseContent, length));
     }
 }
