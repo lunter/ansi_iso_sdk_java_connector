@@ -14,7 +14,7 @@
         <url>http://www.innovatrics.com</url>
     </organization>
     <scm>
-        <connection>scm:git:git@github.com:lunter/ansi_iso_sdk_java_connector.git</connection>
+        <connection>scm:git:git://github.com/lunter/ansi_iso_sdk_java_connector.git</connection>
         <url>https://github.com/lunter/ansi_iso_sdk_java_connector</url>
     </scm>
     <issueManagement>
