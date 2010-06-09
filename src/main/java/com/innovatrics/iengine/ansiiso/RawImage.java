@@ -5,6 +5,7 @@ package com.innovatrics.iengine.ansiiso;
  * @author Martin Vysny
  */
 public class RawImage {
+
     /**
      * Creates a RAW image data.
      * @param width Contains the width of converted image, in pixels.
@@ -28,4 +29,9 @@ public class RawImage {
      * The raw image data.
      */
     public final byte[] raw;
+
+    @Override
+    public String toString() {
+        return "Raw image " + width + "x" + height + ", data size: " + raw.length;
+    }
 }
