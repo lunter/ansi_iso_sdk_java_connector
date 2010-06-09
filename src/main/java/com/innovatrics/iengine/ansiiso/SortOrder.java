@@ -1,6 +1,6 @@
 package com.innovatrics.iengine.ansiiso;
 /*
-Summary: Defines sort order of minutiae points
+ * Defines sort order of minutiae points
  */
 public enum SortOrder {
     /*

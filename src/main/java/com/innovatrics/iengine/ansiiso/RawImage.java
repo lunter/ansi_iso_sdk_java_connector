@@ -1,10 +1,16 @@
 package com.innovatrics.iengine.ansiiso;
 
 /**
+ * Represents a RAW image data.
  * @author Martin Vysny
  */
 public class RawImage {
-
+    /**
+     * Creates a RAW image data.
+     * @param width Contains the width of converted image, in pixels.
+     * @param height Contains the height of converted image, in pixels.
+     * @param raw the raw image data.
+     */
     public RawImage(int width, int height, byte[] raw) {
         this.width = width;
         this.height = height;
@@ -19,7 +25,7 @@ public class RawImage {
      */
     public final int height;
     /**
-     * Pointer to memory space where raw image is stored.
+     * The raw image data.
      */
     public final byte[] raw;
 }
