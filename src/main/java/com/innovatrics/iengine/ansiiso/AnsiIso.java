@@ -2,12 +2,19 @@ package com.innovatrics.iengine.ansiiso;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * JNA bindings for the IEngine ANSI-ISO API.
  * @author Martin Vysny
  */
 public class AnsiIso {
+
+    private static void checkNotNull(String name, Object obj) {
+        if (obj == null) {
+            throw new IllegalArgumentException("Parameter " + name + " is null");
+        }
+    }
 
     /**
      * Enumeration defining codes for different finger positions
@@ -76,6 +83,7 @@ public class AnsiIso {
         public static final int IENGINE_E_NULLTEMPLATE = 1138;
         public static final String IENGINE_E_NULLTEMPLATE_MSG = "Template is NULL (contains no finger view).";
 
+        // Init, Terminate and other General Functions
         public int IEngine_Init();
 
         public int IEngine_Terminate();
@@ -85,6 +93,21 @@ public class AnsiIso {
         public String IEngine_GetErrorMessage(int errcode);
 
         public int IEngine_SetLicenseContent(byte[] licenseContent, int length);
+
+        // Conversion Functions
+        public int ANSI_ConvertToISO(byte[] ansiTemplate, IntByReference length, byte[] isoTemplate);
+
+        public int ISO_ConvertToANSI(byte[] isoTemplate, IntByReference length, byte[] ansiTemplate);
+
+        public int ISO_ConvertToISOCardCC(byte[] isoTemplate, int maximumMinutiaeCount, int /*IENGINE_SORT_ORDER*/ minutiaeOrder, int /*IENGINE_SORT_ORDER*/ minutiaeSecondaryOrder, IntByReference length, byte[] isoCCTemplate);
+
+        public int ISO_CARD_CC_ConvertToISO(byte[] isoCCTemplate, IntByReference length, byte[] isoTemplate);
+
+        public int IEngine_GetImageQuality(int width, int height, final byte[] rawImage, IntByReference quality);
+
+        public int IEngine_LoadBMP(final byte[] filename, IntByReference width, IntByReference height, byte[] rawImage, IntByReference length);
+
+        public int IEngine_ConvertBMP(final byte[] bmpImage, IntByReference width, IntByReference height, byte[] rawImage, IntByReference length);
     }
 
     private void check(int result) {
@@ -144,6 +167,7 @@ public class AnsiIso {
         throw new AnsiIsoException(errMsg == null ? "Unknown error #" + result : errMsg, result);
     }
 
+    // Init, Terminate and other General Functions
     public void init() {
         check(AnsiIsoNative.INSTANCE.IEngine_Init());
     }
@@ -160,5 +184,79 @@ public class AnsiIso {
 
     public void setLicenseContent(byte[] licenseContent, int length) {
         check(AnsiIsoNative.INSTANCE.IEngine_SetLicenseContent(licenseContent, length));
+    }
+
+    // Conversion Functions
+    public byte[] ansiConvertToISO(byte[] ansiTemplate) {
+        checkNotNull("ansiTemplate", ansiTemplate);
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ANSI_ConvertToISO(ansiTemplate, length, null));
+        final byte[] isoTemplate = new byte[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.ANSI_ConvertToISO(ansiTemplate, length, isoTemplate));
+        return isoTemplate;
+    }
+
+    public byte[] isoConvertToANSI(byte[] isoTemplate) {
+        checkNotNull("isoTemplate", isoTemplate);
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ISO_ConvertToANSI(isoTemplate, length, null));
+        final byte[] ansiTemplate = new byte[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.ISO_ConvertToANSI(isoTemplate, length, ansiTemplate));
+        return ansiTemplate;
+    }
+
+    public byte[] isoConvertToISOCardCC(byte[] isoTemplate, int maximumMinutiaeCount, SortOrder minutiaeOrder, SortOrder minutiaeSecondaryOrder) {
+        checkNotNull("isoTemplate", isoTemplate);
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ISO_ConvertToISOCardCC(isoTemplate, maximumMinutiaeCount, minutiaeOrder.ordinal(), minutiaeSecondaryOrder.ordinal(), length, null));
+        final byte[] isoCCTemplate = new byte[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.ISO_ConvertToISOCardCC(isoTemplate, maximumMinutiaeCount, minutiaeOrder.ordinal(), minutiaeSecondaryOrder.ordinal(), length, isoCCTemplate));
+        return isoCCTemplate;
+    }
+
+    public byte[] isoCardCCConvertToISO(byte[] isoCCTemplate) {
+        checkNotNull("isoCCTemplate", isoCCTemplate);
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ISO_CARD_CC_ConvertToISO(isoCCTemplate, length, null));
+        final byte[] isoTemplate = new byte[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.ISO_CARD_CC_ConvertToISO(isoCCTemplate, length, isoTemplate));
+        return isoTemplate;
+    }
+
+    public int getImageQuality(int width, int height, final byte[] rawImage) {
+        checkNotNull("rawImage", rawImage);
+        final IntByReference quality = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.IEngine_GetImageQuality(width, height, rawImage, quality));
+        return quality.getValue();
+    }
+
+    public RawImage loadBMP(final String filename) {
+        checkNotNull("filename", filename);
+        final IntByReference width = new IntByReference();
+        final IntByReference height = new IntByReference();
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.IEngine_LoadBMP(filename.getBytes(), width, height, null, length));
+        final byte[] rawImage = new byte[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.IEngine_LoadBMP(filename.getBytes(), width, height, rawImage, length));
+        final RawImage result = new RawImage();
+        result.width = width.getValue();
+        result.height = height.getValue();
+        result.raw = rawImage;
+        return result;
+    }
+
+    public RawImage convertBMP(final byte[] bmpImage) {
+        checkNotNull("bmpImage", bmpImage);
+        final IntByReference width = new IntByReference();
+        final IntByReference height = new IntByReference();
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.IEngine_ConvertBMP(bmpImage, width, height, null, length));
+        final byte[] rawImage = new byte[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.IEngine_ConvertBMP(bmpImage, width, height, rawImage, length));
+        final RawImage result = new RawImage();
+        result.width = width.getValue();
+        result.height = height.getValue();
+        result.raw = rawImage;
+        return result;
     }
 }
