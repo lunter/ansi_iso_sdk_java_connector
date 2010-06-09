@@ -1,6 +1,6 @@
 package com.innovatrics.iengine.ansiiso;
 
-/*
+/**
  * Defines impression type of fingerprint image
  */
 public enum ImpressionType {

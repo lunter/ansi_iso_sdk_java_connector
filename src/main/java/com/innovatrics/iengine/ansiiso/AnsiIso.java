@@ -604,23 +604,23 @@ public class AnsiIso {
         check(AnsiIsoNative.INSTANCE.ANSI_SetTemplateParameter(ansiTemplate, parameter.cval, value));
     }
 
-    public int ANSI_GetFingerView(final byte[] ansiTemplate, int fingerView, byte[] outTemplate);
-
-    public int ANSI_DrawMinutiae(final byte[] ansiTemplate, int width, int height, byte[] /*char*/ inputImage, byte[] /*char*/ outputBmpImage, IntByReference outputImageLength);
-
-    public int ANSI_GetMinutiae(final byte[] ansiTemplate, IEngineMinutiae[] minutiae, IntByReference minutiaeCount);
-
-    public int ANSI_MergeTemplates(final byte[] referenceTemplate, final byte[] addedTemplate, IntByReference length, byte[] outTemplate);
-
-    public int ANSI_LoadTemplate(final /*char*/ byte[] filename, byte[] ansiTemplate);
-
-    public int ANSI_RemoveMinutiae(byte[] inTemplate, int maximumMinutiaeCount, IntByReference length, byte[] outTemplate);
-
-    public int ANSI_SaveTemplate(final byte[] /*char*/ filename, final byte[] ansiTemplate);
-
-    public int ISO_GetTemplateParameter(final byte[] isoTemplate, /*IENGINE_TEMPLATE_PARAMETER*/ int parameter, IntByReference value);
-
-    public int ISO_SetTemplateParameter(byte[] isoTemplate, /*IENGINE_TEMPLATE_PARAMETER*/ int parameter, int value);
+//    public int ANSI_GetFingerView(final byte[] ansiTemplate, int fingerView, byte[] outTemplate);
+//
+//    public int ANSI_DrawMinutiae(final byte[] ansiTemplate, int width, int height, byte[] /*char*/ inputImage, byte[] /*char*/ outputBmpImage, IntByReference outputImageLength);
+//
+//    public int ANSI_GetMinutiae(final byte[] ansiTemplate, IEngineMinutiae[] minutiae, IntByReference minutiaeCount);
+//
+//    public int ANSI_MergeTemplates(final byte[] referenceTemplate, final byte[] addedTemplate, IntByReference length, byte[] outTemplate);
+//
+//    public int ANSI_LoadTemplate(final /*char*/ byte[] filename, byte[] ansiTemplate);
+//
+//    public int ANSI_RemoveMinutiae(byte[] inTemplate, int maximumMinutiaeCount, IntByReference length, byte[] outTemplate);
+//
+//    public int ANSI_SaveTemplate(final byte[] /*char*/ filename, final byte[] ansiTemplate);
+//
+//    public int ISO_GetTemplateParameter(final byte[] isoTemplate, /*IENGINE_TEMPLATE_PARAMETER*/ int parameter, IntByReference value);
+//
+//    public int ISO_SetTemplateParameter(byte[] isoTemplate, /*IENGINE_TEMPLATE_PARAMETER*/ int parameter, int value);
 
     /**
      * Returns specified finger view from ISO/IEC 19794-2 compliant template.<p/>
@@ -660,15 +660,15 @@ public class AnsiIso {
         return result;
     }
 
-    public int ISO_GetMinutiae(final byte[] isoTemplate, IEngineMinutiae[] minutiae, IntByReference minutiaeCount);
-
-    public int ISO_MergeTemplates(final byte[] referenceTemplate, final byte[] addedTemplate, IntByReference length, byte[] outTemplate);
-
-    public int ISO_LoadTemplate(final byte[] /*char*/ filename, byte[] isoTemplate);
-
-    public int ISO_RemoveMinutiae(byte[] inTemplate, int maximumMinutiaeCount, IntByReference length, byte[] outTemplate);
-
-    public int ISO_SaveTemplate(final /*char*/ byte[] filename, final byte[] isoTemplate);
-
-    public int IEngine_ConvertTemplate(/*IENGINE_TEMPLATE_FORMAT*/int inputTemplateType, byte[] inputTemplate, /*IENGINE_TEMPLATE_FORMAT*/ int outputTemplateType, IntByReference length, byte[] outputTemplate);
+//    public int ISO_GetMinutiae(final byte[] isoTemplate, IEngineMinutiae[] minutiae, IntByReference minutiaeCount);
+//
+//    public int ISO_MergeTemplates(final byte[] referenceTemplate, final byte[] addedTemplate, IntByReference length, byte[] outTemplate);
+//
+//    public int ISO_LoadTemplate(final byte[] /*char*/ filename, byte[] isoTemplate);
+//
+//    public int ISO_RemoveMinutiae(byte[] inTemplate, int maximumMinutiaeCount, IntByReference length, byte[] outTemplate);
+//
+//    public int ISO_SaveTemplate(final /*char*/ byte[] filename, final byte[] isoTemplate);
+//
+//    public int IEngine_ConvertTemplate(/*IENGINE_TEMPLATE_FORMAT*/int inputTemplateType, byte[] inputTemplate, /*IENGINE_TEMPLATE_FORMAT*/ int outputTemplateType, IntByReference length, byte[] outputTemplate);
 }

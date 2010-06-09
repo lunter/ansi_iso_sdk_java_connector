@@ -1,6 +1,6 @@
 package com.innovatrics.iengine.ansiiso;
 
-/*
+/**
  * Enumeration defining codes for different template formats
  */
 public enum IEngineTemplateFormat {
