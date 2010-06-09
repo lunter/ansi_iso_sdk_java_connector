@@ -338,8 +338,7 @@ public class AnsiIso {
      * This function reads bmp image encoded in a byte array and converts it to raw 8-bit format as described in paragraph
     Fingerprint Image Data ( see page 2)
      * @param bmpImage Pointer to the image in BMP format stored in the memory
-     * @return input bmp image will be converted to 8-bit raw image format and written into memory space pointed by
-    rawImage parameter.
+     * @return input bmp image will be converted to 8-bit raw image format
      */
     public RawImage convertBMP(final byte[] bmpImage) {
         checkNotNull("bmpImage", bmpImage);
@@ -361,7 +360,7 @@ public class AnsiIso {
      * @param width The number of pixels indicating the width of the image
      * @param height The number of pixels indicating the height of the image
      * @param rawImage Pointer to the uncompressed raw image for template creation
-     * @return     Pointer to memory space where the processed template will be written. Memory should be allocated before calling this function. The maximal size of
+     * @return the processed template. The maximal size of
     generated template is 1568 bytes.
      */
     public byte[] ansiCreateTemplate(int width, int height, final byte[] rawImage) {
@@ -384,7 +383,7 @@ public class AnsiIso {
      * @param binarizedImageFile Specifies the filename of bmp image where the fingerprint binary image will be saved. If this parameter is NULL, no binary image is saved.
      * @param minutiaeImageFile Specifies the filename of bmp image where the minutiae image will be saved (original fingerprint with all detected minutiae). If this parameter is NULL, no
     minutiae image is saved.
-     * @return Pointer to memory space where the processed template will be written. Memory should be allocated before calling this function. The maximal size of
+     * @return the processed template, the maximal size of
     generated templates is 1568 bytes.
      */
     public byte[] ansiCreateTemplateEx(int width, int height, final byte[] rawImage, final String skeletonImageFile, final String binarizedImageFile, final String minutiaeImageFile) {
@@ -415,13 +414,121 @@ public class AnsiIso {
         return score.getValue();
     }
 
-    int ANSI_VerifyMatchEx(final byte[] probeTemplate, int probeView, final byte[] galleryTemplate, int galleryView, int maxRotation, IntByReference score);
+    /**
+     * Compares specified finger views from ANSI/INCITS 378 compliant templates. <p/>
+     * This function compares given finger views from ANSI/INCITS 378 compliant templates and outputs a match score. The
+    score returned is an integer value ranging from 0 to 100000 which represents the similarity of original fingerprint images
+    corresponding to compared finger views. See topic Matching Scores ( see page 3) for more details.
+     * @param probeTemplate ANSI/INCITS 378 template
+     * @param probeView Index number of the compared finger view from probe template. 0 is the first index number, 1 the second, etc.
+     * @param galleryTemplate ANSI/INCITS 378 template
+     * @param galleryView Index number of the compared finger view from gallery template. 0 is the first index number, 1 the second, etc.
+     * @param maxRotation Maximal considered rotation between two fingerprint images. Valid range is between 0 and 180.
+     * @return On return, contains match score
+     */
+    public int ansiVerifyMatchEx(final byte[] probeTemplate, int probeView, final byte[] galleryTemplate, int galleryView, int maxRotation) {
+        checkNotNull("probeTemplate", probeTemplate);
+        checkNotNull("galleryTemplate", galleryTemplate);
+        if (maxRotation < 0 || maxRotation > 180) {
+            throw new IllegalArgumentException("Parameter maxRotation: invalid value " + maxRotation + ": Must be 0..180");
+        }
+        if (probeView < 0) {
+            throw new IllegalArgumentException("Parameter probeView: invalid value " + probeView + ": Must be >=0");
+        }
+        if (galleryView < 0) {
+            throw new IllegalArgumentException("Parameter galleryView: invalid value " + galleryView + ": Must be >=0");
+        }
+        final IntByReference score = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ANSI_VerifyMatchEx(probeTemplate, probeView, galleryTemplate, galleryView, maxRotation, score));
+        return score.getValue();
+    }
 
-    int ISO_CreateTemplate(int width, int height, final byte[] rawImage, byte[] isoTemplate);
+    /**
+     * Creates ISO/IEC 19794-2 compliant template.<p/>
+     * This function takes a raw image as input and generates the corresponding ISO/IEC 19794-2 compliant fingerprint template.
+    The memory for the template is allocated before the call (i.e., ISO_CreateTemplate does not handle the memory allocation
+    for the template parameter).
+     * @param width The number of pixels indicating the width of the image
+     * @param height The number of pixels indicating the height of the image
+     * @param rawImage Pointer to the uncompressed raw image for template creation
+     * @return     the processed template. The maximal size of
+    generated template is 1566 bytes.
+     */
+    public byte[] isoCreateTemplate(int width, int height, final byte[] rawImage) {
+        checkNotNull("rawImage", rawImage);
+        final byte[] isoTemplate = new byte[IENGINE_MAX_ISO_TEMPLATE_SIZE];
+        check(AnsiIsoNative.INSTANCE.ISO_CreateTemplate(width, height, rawImage, isoTemplate));
+        return isoTemplate;
+    }
 
-    int ISO_CreateTemplateEx(int width, int height, final byte[] rawImage, byte[] isoTemplate, final /*char*/ byte[] skeletonImageFile, final /*char*/ byte[] binarizedImageFile, final /*char*/ byte[] minutiaeImageFile);
+    /**
+     * Creates ISO/IEC 19794-2 compliant template, stores intermediate images.<p/>
+     * This function takes a raw image as input and generates the corresponding ISO/IEC 19794-2 compliant fingerprint template.
+    It optionally stores intermediate images produced during the extraction phase.
+     * @param width The number of pixels indicating the width of the image
+     * @param height The number of pixels indicating the height of the image
+     * @param rawImage Pointer to the uncompressed raw image for template creation
+     * @param skeletonImageFile Specifies the filename of bmp image where the fingerprint skeleton image will be saved. If this parameter is NULL, no skeleton image is saved.
+     * @param binarizedImageFile Specifies the filename of bmp image where the fingerprint binary image will be saved. If this parameter is NULL, no binary image is saved.
+     * @param minutiaeImageFile    Specifies the filename of bmp image where the minutiae image will be saved (original fingerprint with all detected minutiae). If this parameter is NULL, no
+    minutiae image is saved.
+     * @return the processed template. The maximal size of
+    generated templates is 1566 bytes.
+     */
+    public byte[] isoCreateTemplateEx(int width, int height, final byte[] rawImage, final String skeletonImageFile, final String binarizedImageFile, final String minutiaeImageFile) {
+        checkNotNull("rawImage", rawImage);
+        final byte[] isoTemplate = new byte[IENGINE_MAX_ISO_TEMPLATE_SIZE];
+        check(AnsiIsoNative.INSTANCE.ISO_CreateTemplateEx(width, height, rawImage, isoTemplate, skeletonImageFile == null ? null : skeletonImageFile.getBytes(), binarizedImageFile == null ? null : binarizedImageFile.getBytes(), minutiaeImageFile == null ? null : minutiaeImageFile.getBytes()));
+        return isoTemplate;
+    }
 
-    int ISO_VerifyMatch(final byte[] probeTemplate, final byte[] galleryTemplate, int maxRotation, IntByReference score);
+    /**
+     * Compares two ISO/IEC 19794-2 compliant templates.<p/>
+    This function compares two ISO/IEC 19794-2 compliant templates and outputs a match score. The score returned is an
+    integer value ranging from 0 to 100000 which represents the similarity of original fingerprint images corresponding to
+    compared templates. See topic Matching Scores ( see page 3) for more details.
+     * @param probeTemplate ISO/IEC 19794-2 template
+     * @param galleryTemplate ISO/IEC 19794-2 template
+     * @param maxRotation Maximal considered rotation between two fingerprint images. Valid range is between 0 and 180.
+     * @return On return, contains match score
+     */
+    public int isoVerifyMatch(final byte[] probeTemplate, final byte[] galleryTemplate, int maxRotation) {
+        checkNotNull("probeTemplate", probeTemplate);
+        checkNotNull("galleryTemplate", galleryTemplate);
+        if (maxRotation < 0 || maxRotation > 180) {
+            throw new IllegalArgumentException("Parameter maxRotation: invalid value " + maxRotation + ": Must be 0..180");
+        }
+        final IntByReference score = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ISO_VerifyMatch(probeTemplate, galleryTemplate, maxRotation, score));
+        return score.getValue();
+    }
 
-    int ISO_VerifyMatchEx(final byte[] probeTemplate, int probeView, final byte[] galleryTemplate, int galleryView, int maxRotation, IntByReference score);
+    /**
+     * Compares specified finger views from ISO/IEC 19794-2 compliant templates.<p/>
+     * This function compares given finger views from ISO/IEC 19794-2 compliant templates and outputs a match score. The score
+    returned is an integer value ranging from 0 to 100000 which represents the similarity of original fingerprint images
+    corresponding to compared finger views. See topic Matching Scores ( see page 3) for more details.
+     * @param probeTemplate ISO/IEC 19794-2 template
+     * @param probeView Index number of the compared finger view from probe template. 0 is the first index number, 1 the second, etc.
+     * @param galleryTemplate ISO/IEC 19794-2 template
+     * @param galleryView  Index number of the compared finger view from gallery template. 0 is the first index number, 1 the second, etc.
+     * @param maxRotation Maximal considered rotation between two fingerprint images. Valid range is between 0 and 180.
+     * @return On return, contains match score
+     */
+    public int ISO_VerifyMatchEx(final byte[] probeTemplate, int probeView, final byte[] galleryTemplate, int galleryView, int maxRotation) {
+        checkNotNull("probeTemplate", probeTemplate);
+        checkNotNull("galleryTemplate", galleryTemplate);
+        if (maxRotation < 0 || maxRotation > 180) {
+            throw new IllegalArgumentException("Parameter maxRotation: invalid value " + maxRotation + ": Must be 0..180");
+        }
+        if (probeView < 0) {
+            throw new IllegalArgumentException("Parameter probeView: invalid value " + probeView + ": Must be >=0");
+        }
+        if (galleryView < 0) {
+            throw new IllegalArgumentException("Parameter galleryView: invalid value " + galleryView + ": Must be >=0");
+        }
+        final IntByReference score = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ISO_VerifyMatchEx(probeTemplate, probeView, galleryTemplate, galleryView, maxRotation, score));
+        return score.getValue();
+    }
 }
