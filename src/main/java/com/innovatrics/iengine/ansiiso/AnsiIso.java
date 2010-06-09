@@ -105,14 +105,14 @@ public class AnsiIso {
 
         int IEngine_GetImageQuality(int width, int height, final byte[] rawImage, IntByReference quality);
 
-        int IEngine_LoadBMP(final byte[] filename, IntByReference width, IntByReference height, byte[] rawImage, IntByReference length);
+        int IEngine_LoadBMP(final String filename, IntByReference width, IntByReference height, byte[] rawImage, IntByReference length);
 
         int IEngine_ConvertBMP(final byte[] bmpImage, IntByReference width, IntByReference height, byte[] rawImage, IntByReference length);
 
         // Template Extraction and Matching Functions
         int ANSI_CreateTemplate(int width, int height, final byte[] rawImage, byte[] ansiTemplate);
 
-        int ANSI_CreateTemplateEx(int width, int height, final byte[] rawImage, byte[] ansiTemplate, final /*char*/ byte[] skeletonImageFile, final /*char*/ byte[] binarizedImageFile, final /*char*/ byte[] minutiaeImageFile);
+        int ANSI_CreateTemplateEx(int width, int height, final byte[] rawImage, byte[] ansiTemplate, final String skeletonImageFile, final String binarizedImageFile, final String minutiaeImageFile);
 
         int ANSI_VerifyMatch(final byte[] probeTemplate, final byte[] galleryTemplate, int maxRotation, IntByReference score);
 
@@ -120,7 +120,7 @@ public class AnsiIso {
 
         int ISO_CreateTemplate(int width, int height, final byte[] rawImage, byte[] isoTemplate);
 
-        int ISO_CreateTemplateEx(int width, int height, final byte[] rawImage, byte[] isoTemplate, final /*char*/ byte[] skeletonImageFile, final /*char*/ byte[] binarizedImageFile, final /*char*/ byte[] minutiaeImageFile);
+        int ISO_CreateTemplateEx(int width, int height, final byte[] rawImage, byte[] isoTemplate, final String skeletonImageFile, final String binarizedImageFile, final String minutiaeImageFile);
 
         int ISO_VerifyMatch(final byte[] probeTemplate, final byte[] galleryTemplate, int maxRotation, IntByReference score);
 
@@ -133,17 +133,17 @@ public class AnsiIso {
 
         int ANSI_GetFingerView(final byte[] ansiTemplate, int fingerView, byte[] outTemplate);
 
-        int ANSI_DrawMinutiae(final byte[] ansiTemplate, int width, int height, byte[] /*char*/ inputImage, byte[] /*char*/ outputBmpImage, IntByReference outputImageLength);
+        int ANSI_DrawMinutiae(final byte[] ansiTemplate, int width, int height, byte[] inputImage, byte[] outputBmpImage, IntByReference outputImageLength);
 
         int ANSI_GetMinutiae(final byte[] ansiTemplate, IEngineMinutiae[] minutiae, IntByReference minutiaeCount);
 
         int ANSI_MergeTemplates(final byte[] referenceTemplate, final byte[] addedTemplate, IntByReference length, byte[] outTemplate);
 
-        int ANSI_LoadTemplate(final /*char*/ byte[] filename, byte[] ansiTemplate);
+        int ANSI_LoadTemplate(final String filename, byte[] ansiTemplate);
 
         int ANSI_RemoveMinutiae(byte[] inTemplate, int maximumMinutiaeCount, IntByReference length, byte[] outTemplate);
 
-        int ANSI_SaveTemplate(final byte[] /*char*/ filename, final byte[] ansiTemplate);
+        int ANSI_SaveTemplate(final String filename, final byte[] ansiTemplate);
 
         int ISO_GetTemplateParameter(final byte[] isoTemplate, /*IENGINE_TEMPLATE_PARAMETER*/ int parameter, IntByReference value);
 
@@ -151,17 +151,17 @@ public class AnsiIso {
 
         int ISO_GetFingerView(final byte[] isoTemplate, int fingerView, byte[] outTemplate);
 
-        int ISO_DrawMinutiae(final byte[] isoTemplate, int width, int height, byte[] /*char*/ inputImage, /*char*/ byte[] outputBmpImage, IntByReference outputImageLength);
+        int ISO_DrawMinutiae(final byte[] isoTemplate, int width, int height, byte[] inputImage, byte[] outputBmpImage, IntByReference outputImageLength);
 
         int ISO_GetMinutiae(final byte[] isoTemplate, IEngineMinutiae[] minutiae, IntByReference minutiaeCount);
 
         int ISO_MergeTemplates(final byte[] referenceTemplate, final byte[] addedTemplate, IntByReference length, byte[] outTemplate);
 
-        int ISO_LoadTemplate(final byte[] /*char*/ filename, byte[] isoTemplate);
+        int ISO_LoadTemplate(final String filename, byte[] isoTemplate);
 
         int ISO_RemoveMinutiae(byte[] inTemplate, int maximumMinutiaeCount, IntByReference length, byte[] outTemplate);
 
-        int ISO_SaveTemplate(final /*char*/ byte[] filename, final byte[] isoTemplate);
+        int ISO_SaveTemplate(final String filename, final byte[] isoTemplate);
 
         int IEngine_ConvertTemplate(/*IENGINE_TEMPLATE_FORMAT*/int inputTemplateType, byte[] inputTemplate, /*IENGINE_TEMPLATE_FORMAT*/ int outputTemplateType, IntByReference length, byte[] outputTemplate);
     }
@@ -366,9 +366,9 @@ public class AnsiIso {
         final IntByReference width = new IntByReference();
         final IntByReference height = new IntByReference();
         final IntByReference length = new IntByReference();
-        check(AnsiIsoNative.INSTANCE.IEngine_LoadBMP(filename.getBytes(), width, height, null, length));
+        check(AnsiIsoNative.INSTANCE.IEngine_LoadBMP(filename, width, height, null, length));
         final byte[] rawImage = new byte[length.getValue()];
-        check(AnsiIsoNative.INSTANCE.IEngine_LoadBMP(filename.getBytes(), width, height, rawImage, length));
+        check(AnsiIsoNative.INSTANCE.IEngine_LoadBMP(filename, width, height, rawImage, length));
         return new RawImage(width.getValue(), height.getValue(), rawImage);
     }
 
@@ -427,7 +427,7 @@ public class AnsiIso {
      */
     public byte[] ansiCreateTemplateEx(int width, int height, final byte[] rawImage, final String skeletonImageFile, final String binarizedImageFile, final String minutiaeImageFile) {
         final byte[] result = new byte[IENGINE_MAX_ANSI_TEMPLATE_SIZE];
-        check(AnsiIsoNative.INSTANCE.ANSI_CreateTemplateEx(width, height, rawImage, result, skeletonImageFile == null ? null : skeletonImageFile.getBytes(), binarizedImageFile == null ? null : binarizedImageFile.getBytes(), minutiaeImageFile == null ? null : minutiaeImageFile.getBytes()));
+        check(AnsiIsoNative.INSTANCE.ANSI_CreateTemplateEx(width, height, rawImage, result, skeletonImageFile, binarizedImageFile, minutiaeImageFile));
         // @TODO mvy: alter the length of the result array according to the real size of the template
         return result;
     }
@@ -517,7 +517,7 @@ public class AnsiIso {
     public byte[] isoCreateTemplateEx(int width, int height, final byte[] rawImage, final String skeletonImageFile, final String binarizedImageFile, final String minutiaeImageFile) {
         checkNotNull("rawImage", rawImage);
         final byte[] isoTemplate = new byte[IENGINE_MAX_ISO_TEMPLATE_SIZE];
-        check(AnsiIsoNative.INSTANCE.ISO_CreateTemplateEx(width, height, rawImage, isoTemplate, skeletonImageFile == null ? null : skeletonImageFile.getBytes(), binarizedImageFile == null ? null : binarizedImageFile.getBytes(), minutiaeImageFile == null ? null : minutiaeImageFile.getBytes()));
+        check(AnsiIsoNative.INSTANCE.ISO_CreateTemplateEx(width, height, rawImage, isoTemplate, skeletonImageFile, binarizedImageFile, minutiaeImageFile));
         return isoTemplate;
     }
 
@@ -687,7 +687,7 @@ public class AnsiIso {
     public byte[] ansiLoadTemplate(final String filename) {
         checkNotNull("filename", filename);
         final byte[] result = new byte[IENGINE_MAX_ANSI_TEMPLATE_SIZE];
-        check(AnsiIsoNative.INSTANCE.ANSI_LoadTemplate(filename.getBytes(), result));
+        check(AnsiIsoNative.INSTANCE.ANSI_LoadTemplate(filename, result));
         return result;
 
     }
@@ -720,7 +720,7 @@ public class AnsiIso {
     public void ansiSaveTemplate(final String filename, final byte[] ansiTemplate) {
         checkNotNull("filename", filename);
         checkNotNull("ansiTemplate", ansiTemplate);
-        check(AnsiIsoNative.INSTANCE.ANSI_SaveTemplate(filename.getBytes(), ansiTemplate));
+        check(AnsiIsoNative.INSTANCE.ANSI_SaveTemplate(filename, ansiTemplate));
     }
 
     /**
@@ -837,7 +837,7 @@ public class AnsiIso {
     public byte[] isoLoadTemplate(final String filename) {
         checkNotNull("filename", filename);
         final byte[] result = new byte[IENGINE_MAX_ISO_TEMPLATE_SIZE];
-        check(AnsiIsoNative.INSTANCE.ISO_LoadTemplate(filename.getBytes(), result));
+        check(AnsiIsoNative.INSTANCE.ISO_LoadTemplate(filename, result));
         return result;
     }
 
@@ -869,7 +869,7 @@ public class AnsiIso {
     public void isoSaveTemplate(final String filename, final byte[] isoTemplate) {
         checkNotNull("filename", filename);
         checkNotNull("isoTemplate", isoTemplate);
-        check(AnsiIsoNative.INSTANCE.ISO_SaveTemplate(filename.getBytes(), isoTemplate));
+        check(AnsiIsoNative.INSTANCE.ISO_SaveTemplate(filename, isoTemplate));
     }
 
     /**
