@@ -185,25 +185,54 @@ public class AnsiIso {
     }
 
     // Init, Terminate and other General Functions
+    /**
+     * Initializes the library.
+     * <p/>
+     * This function initializes and checks the integrity of the library and verifies the validity of the license. It should be called prior to
+    any other function from the library.
+     */
     public void init() {
         check(AnsiIsoNative.INSTANCE.IEngine_Init());
     }
 
+    /**
+     * Terminates the use of the library<p/>
+     * This function releases all resources allocated by the library. It should be called as the very last function of the library.
+     */
     public void terminate() {
         check(AnsiIsoNative.INSTANCE.IEngine_Terminate());
     }
 
-    public IEngineVersion getVersion(IEngineVersion version) {
+    /**
+     * Returns the library version
+     * @return the library version
+     */
+    public IEngineVersion getVersion() {
         final IEngineVersion result = new IEngineVersion();
         check(AnsiIsoNative.INSTANCE.IEngine_GetVersion(result));
         return result;
     }
 
+    /**
+     * Activates the library with a license key.<p/>
+     * Use this function if you want to avoid storing license files on filesystem. This prevents a potential hacker to steal your license
+    file information.
+     * @param licenseContent  License information as provided by Innovatrics
+     * @param length Total length of license data
+     */
     public void setLicenseContent(byte[] licenseContent, int length) {
         check(AnsiIsoNative.INSTANCE.IEngine_SetLicenseContent(licenseContent, length));
     }
 
     // Conversion Functions
+    /**
+     * Converts ANSI/INCITS 378 compliant template to ISO/IEC 19794-2 compliant template.
+     * <p/>
+     * This function converts an input ANSI/INCITS 378 compliant template to an output ISO/IEC 19794-2 compliant template.
+    Templates with multiple finger views are supported by this function.
+     * @param ansiTemplate Reference ANSI/INCITS 378 template
+     * @return the resulting ISO/IEC 19794-2 compliant template
+     */
     public byte[] ansiConvertToISO(byte[] ansiTemplate) {
         checkNotNull("ansiTemplate", ansiTemplate);
         final IntByReference length = new IntByReference();
@@ -213,6 +242,14 @@ public class AnsiIso {
         return isoTemplate;
     }
 
+    /**
+     * Converts ISO/IEC 19794-2 compliant template to ANSI/INCITS 378 compliant template
+     * <p/>
+     * This function converts an input ISO/IEC 19794-2 compliant template to an output ANSI/INCITS 378 compliant template.
+    Templates with multiple finger views are supported by this function.
+     * @param isoTemplate  Reference ISO/IEC 19794-2 template
+     * @return the resulting ANSI/INCITS 378 compliant template
+     */
     public byte[] isoConvertToANSI(byte[] isoTemplate) {
         checkNotNull("isoTemplate", isoTemplate);
         final IntByReference length = new IntByReference();
@@ -222,6 +259,21 @@ public class AnsiIso {
         return ansiTemplate;
     }
 
+    /**
+     * Converts a regular ISO template to ISO Compact Card template format (ISO Compact Size Finger Minutiae Format)
+     * <p/>
+     * This function takes as input an ISO/IEC 19794-2 compliant fingerprint template and converts it into Finger Minutiae Compact
+    Card Format template (ISO_CARD_CC template). An ISO_CARD_CC template is defined in ISO/IEC 19794-2 standard,
+    under paragraph 8. In ISO_CARD_CC template, each minutiae point is encoded in 3 bytes (instead of 6 bytes used in
+    regular ISO template). This function can also truncate minutiae points, if the number of minutiae points in the template is too
+    big. You may also specify desired minutiae order in which minutiae points should be stored in the template.
+     * @param isoTemplate Reference ISO/IEC 19794-2 template
+     * @param maximumMinutiaeCount     The maximal number of minutiae that will be stored in the output template. See {@link #isoRemoveMinutiae} for details about truncation
+    algorithm.
+     * @param minutiaeOrder Defines the primary ordering criteria for minutiae
+     * @param minutiaeSecondaryOrder Defines the secondary ordering criteria for minutiae (used when primary ordering criteria gives equality)
+     * @return  the resulting ISO Compact Card template
+     */
     public byte[] isoConvertToISOCardCC(byte[] isoTemplate, int maximumMinutiaeCount, SortOrder minutiaeOrder, SortOrder minutiaeSecondaryOrder) {
         checkNotNull("isoTemplate", isoTemplate);
         final IntByReference length = new IntByReference();
@@ -231,6 +283,15 @@ public class AnsiIso {
         return isoCCTemplate;
     }
 
+    /**
+     * Converts an ISO Compact Card template into regular ISO template.<p/>
+     * This function takes as input a Finger Minutiae Compact Card Format template (ISO_CARD_CC template) and converts it
+    into ISO/IEC 19794-2 compliant fingerprint template. An ISO_CARD_CC template is defined in ISO/IEC 19794-2 standard,
+    under paragraph 8. In ISO_CARD_CC template, each minutiae point is encoded in 3 bytes (instead of 6 bytes used in
+    regular ISO template).
+     * @param isoCCTemplate ISO Compact Card template
+     * @return the resulting ISO template
+     */
     public byte[] isoCardCCConvertToISO(byte[] isoCCTemplate) {
         checkNotNull("isoCCTemplate", isoCCTemplate);
         final IntByReference length = new IntByReference();
@@ -240,6 +301,13 @@ public class AnsiIso {
         return isoTemplate;
     }
 
+    /**
+     * Returns quality of a fingerprint image
+     * @param width The number of pixels indicating the width of the image
+     * @param height The number of pixels indicating the height of the image
+     * @param rawImage Pointer to the uncompressed raw image for template creation
+     * @return Fingerprint image quality, the output range is from 0 (lowest quality) to 100 (highest quality)
+     */
     public int getImageQuality(int width, int height, final byte[] rawImage) {
         checkNotNull("rawImage", rawImage);
         final IntByReference quality = new IntByReference();
@@ -247,6 +315,13 @@ public class AnsiIso {
         return quality.getValue();
     }
 
+    /**
+     * Loads bmp image from file and converts it to raw 8-bit format.<p/>
+     * This function reads bmp image contained in a file and converts it to raw 8-bit format as described in paragraph Fingerprint
+    Image Data ( see page 2)
+     * @param filename Name of the file containing the input bmp image
+     * @return input bmp image is converted to 8-bit raw image format
+     */
     public RawImage loadBMP(final String filename) {
         checkNotNull("filename", filename);
         final IntByReference width = new IntByReference();
@@ -258,6 +333,14 @@ public class AnsiIso {
         return new RawImage(width.getValue(), height.getValue(), rawImage);
     }
 
+    /**
+     * Reads bmp image from memory and converts it to raw 8-bit format.<p/>
+     * This function reads bmp image encoded in a byte array and converts it to raw 8-bit format as described in paragraph
+    Fingerprint Image Data ( see page 2)
+     * @param bmpImage Pointer to the image in BMP format stored in the memory
+     * @return input bmp image will be converted to 8-bit raw image format and written into memory space pointed by
+    rawImage parameter.
+     */
     public RawImage convertBMP(final byte[] bmpImage) {
         checkNotNull("bmpImage", bmpImage);
         final IntByReference width = new IntByReference();
@@ -268,4 +351,77 @@ public class AnsiIso {
         check(AnsiIsoNative.INSTANCE.IEngine_ConvertBMP(bmpImage, width, height, rawImage, length));
         return new RawImage(width.getValue(), height.getValue(), rawImage);
     }
+
+    // Template Extraction and Matching Functions
+    /**
+     * Creates ANSI/INCITS 378 compliant template.<p/>
+     * This function takes a raw image as input and generates the corresponding ANSI/INCITS 378 compliant fingerprint template.
+    The memory for the template is allocated before the call (i.e., ANSI_CreateTemplate does not handle the memory allocation
+    for the template parameter).
+     * @param width The number of pixels indicating the width of the image
+     * @param height The number of pixels indicating the height of the image
+     * @param rawImage Pointer to the uncompressed raw image for template creation
+     * @return     Pointer to memory space where the processed template will be written. Memory should be allocated before calling this function. The maximal size of
+    generated template is 1568 bytes.
+     */
+    public byte[] ansiCreateTemplate(int width, int height, final byte[] rawImage) {
+        final byte[] result = new byte[IENGINE_MAX_ANSI_TEMPLATE_SIZE];
+        check(AnsiIsoNative.INSTANCE.ANSI_CreateTemplate(width, height, rawImage, result));
+        // @TODO mvy: alter the length of the result array according to the real size of the template
+        return result;
+    }
+
+    /**
+     * Creates ANSI/INCITS 378 compliant template, stores intermediate images.<p/>
+     * This function takes a raw image as input and generates the corresponding ANSI/INCITS 378 compliant fingerprint template.
+    It optionally stores intermediate images produced during the extraction phase. The memory for the template is allocated
+    before the call (i.e., ANSI_CreateTemplate ( see page 12) does not handle the memory allocation for the template
+    parameter).
+     * @param width The number of pixels indicating the width of the image
+     * @param height The number of pixels indicating the height of the image
+     * @param rawImage the uncompressed raw image for template creation
+     * @param skeletonImageFile Specifies the filename of bmp image where the fingerprint skeleton image will be saved. If this parameter is NULL, no skeleton image is saved.
+     * @param binarizedImageFile Specifies the filename of bmp image where the fingerprint binary image will be saved. If this parameter is NULL, no binary image is saved.
+     * @param minutiaeImageFile Specifies the filename of bmp image where the minutiae image will be saved (original fingerprint with all detected minutiae). If this parameter is NULL, no
+    minutiae image is saved.
+     * @return Pointer to memory space where the processed template will be written. Memory should be allocated before calling this function. The maximal size of
+    generated templates is 1568 bytes.
+     */
+    public byte[] ansiCreateTemplateEx(int width, int height, final byte[] rawImage, final String skeletonImageFile, final String binarizedImageFile, final String minutiaeImageFile) {
+        final byte[] result = new byte[IENGINE_MAX_ANSI_TEMPLATE_SIZE];
+        check(AnsiIsoNative.INSTANCE.ANSI_CreateTemplateEx(width, height, rawImage, result, skeletonImageFile == null ? null : skeletonImageFile.getBytes(), binarizedImageFile == null ? null : binarizedImageFile.getBytes(), minutiaeImageFile == null ? null : minutiaeImageFile.getBytes()));
+        // @TODO mvy: alter the length of the result array according to the real size of the template
+        return result;
+    }
+
+    /**
+     * Compares two ANSI/INCITS 378 compliant templates.<p/>
+     * This function compares two ANSI/INCITS 378 compliant templates and outputs a match score. The score returned is an
+     * integer value ranging from 0 to 100000 which represents the similarity of original fingerprint images corresponding to
+     * compared templates. See topic Matching Scores ( see page 3) for more details.
+     * @param probeTemplate ANSI/INCITS 378 template
+     * @param galleryTemplate ANSI/INCITS 378 template
+     * @param maxRotation Maximal considered rotation between two fingerprint images. Valid range is between 0 and 180.
+     * @return On return, contains match score
+     */
+    public int ansiVerifyMatch(final byte[] probeTemplate, final byte[] galleryTemplate, int maxRotation) {
+        checkNotNull("probeTemplate", probeTemplate);
+        checkNotNull("galleryTemplate", galleryTemplate);
+        if (maxRotation < 0 || maxRotation > 180) {
+            throw new IllegalArgumentException("Parameter maxRotation: invalid value " + maxRotation + ": Must be 0..180");
+        }
+        final IntByReference score = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ANSI_VerifyMatch(probeTemplate, galleryTemplate, maxRotation, score));
+        return score.getValue();
+    }
+
+    int ANSI_VerifyMatchEx(final byte[] probeTemplate, int probeView, final byte[] galleryTemplate, int galleryView, int maxRotation, IntByReference score);
+
+    int ISO_CreateTemplate(int width, int height, final byte[] rawImage, byte[] isoTemplate);
+
+    int ISO_CreateTemplateEx(int width, int height, final byte[] rawImage, byte[] isoTemplate, final /*char*/ byte[] skeletonImageFile, final /*char*/ byte[] binarizedImageFile, final /*char*/ byte[] minutiaeImageFile);
+
+    int ISO_VerifyMatch(final byte[] probeTemplate, final byte[] galleryTemplate, int maxRotation, IntByReference score);
+
+    int ISO_VerifyMatchEx(final byte[] probeTemplate, int probeView, final byte[] galleryTemplate, int galleryView, int maxRotation, IntByReference score);
 }

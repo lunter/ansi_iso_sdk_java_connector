@@ -10,7 +10,16 @@ public class RawImage {
         this.height = height;
         this.raw = raw;
     }
+    /**
+     * Contains the width of converted image, in pixels.
+     */
     public final int width;
+    /**
+     * Contains the height of converted image, in pixels.
+     */
     public final int height;
+    /**
+     * Pointer to memory space where raw image is stored.
+     */
     public final byte[] raw;
 }
