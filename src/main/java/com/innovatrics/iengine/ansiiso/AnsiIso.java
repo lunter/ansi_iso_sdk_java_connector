@@ -5,7 +5,7 @@ import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
 
 /**
- * JNA bindings for the IEngine ANSI-ISO API.
+ * JNA bindings for the IEngine ANSI-ISO API. Requires the JNA library version 3.0.9.
  * @author Martin Vysny
  */
 public class AnsiIso {
