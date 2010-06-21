@@ -48,7 +48,7 @@ public class AnsiIso {
 
     private static interface AnsiIsoNative extends Library {
 
-        final AnsiIsoNative INSTANCE = (AnsiIsoNative) Native.loadLibrary("iengine", AnsiIsoNative.class); // NOI18N
+        final AnsiIsoNative INSTANCE = (AnsiIsoNative) Native.loadLibrary("iengine_ansi_iso", AnsiIsoNative.class); // NOI18N
         public static final String IENGINE_E_UNKNOWN_MSG = "Unknown error.";
         public static final int IENGINE_E_NOERROR = 0;
         public static final String IENGINE_E_NOERROR_MSG = "No error.";
