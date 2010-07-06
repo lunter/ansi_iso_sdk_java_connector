@@ -20,6 +20,12 @@
         <system>Github</system>
         <url>https://github.com/lunter/ansi_iso_sdk_java_connector/issues</url>
     </issueManagement>
+    <distributionManagement>
+        <repository>
+            <id>innovatrics-nexus</id>
+            <url>scp://kotoko.local/home/nexus/sonatype-work/nexus/storage/releases</url>
+        </repository>
+    </distributionManagement>
     <developers>
         <developer>
             <id>mvy</id>
@@ -61,14 +67,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-release-plugin</artifactId>
-                <configuration>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <preparationGoals>clean install</preparationGoals>
-                    <goals>clean install</goals>
-                </configuration>
             </plugin>
         </plugins>
     </build>
