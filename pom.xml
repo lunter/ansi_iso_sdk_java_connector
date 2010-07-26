@@ -13,12 +13,12 @@
         <url>http://www.innovatrics.com</url>
     </organization>
     <scm>
-        <connection>scm:git:git://github.com/lunter/ansi_iso_sdk_java_connector.git</connection>
+        <connection>scm:git:ssh://git@github.com/lunter/ansi_iso_sdk_java_connector.git</connection>
         <url>https://github.com/lunter/ansi_iso_sdk_java_connector</url>
     </scm>
     <issueManagement>
-        <system>Github</system>
-        <url>https://github.com/lunter/ansi_iso_sdk_java_connector/issues</url>
+        <system>Redmine</system>
+        <url>http://192.168.1.1:3000/projects/ansiiso-java-conn/issues</url>
     </issueManagement>
     <distributionManagement>
         <repository>
