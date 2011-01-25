@@ -343,15 +343,13 @@ public class AnsiIso {
 
     /**
      * Returns quality of a fingerprint image
-     * @param width The number of pixels indicating the width of the image
-     * @param height The number of pixels indicating the height of the image
      * @param rawImage Pointer to the uncompressed raw image for template creation
      * @return Fingerprint image quality, the output range is from 0 (lowest quality) to 100 (highest quality)
      */
-    public int getImageQuality(int width, int height, final byte[] rawImage) {
+    public int getImageQuality(final RawImage rawImage) {
         checkNotNull("rawImage", rawImage);
         final IntByReference quality = new IntByReference();
-        check(AnsiIsoNative.INSTANCE.IEngine_GetImageQuality(width, height, rawImage, quality));
+        check(AnsiIsoNative.INSTANCE.IEngine_GetImageQuality(rawImage.width, rawImage.height, rawImage.raw, quality));
         return quality.getValue();
     }
 
@@ -397,15 +395,13 @@ public class AnsiIso {
      * This function takes a raw image as input and generates the corresponding ANSI/INCITS 378 compliant fingerprint template.
     The memory for the template is allocated before the call (i.e., ANSI_CreateTemplate does not handle the memory allocation
     for the template parameter).
-     * @param width The number of pixels indicating the width of the image
-     * @param height The number of pixels indicating the height of the image
      * @param rawImage Pointer to the uncompressed raw image for template creation
      * @return the processed template. The maximal size of
     generated template is 1568 bytes.
      */
-    public byte[] ansiCreateTemplate(int width, int height, final byte[] rawImage) {
+    public byte[] ansiCreateTemplate(final RawImage rawImage) {
         final byte[] result = new byte[IENGINE_MAX_ANSI_TEMPLATE_SIZE];
-        check(AnsiIsoNative.INSTANCE.ANSI_CreateTemplate(width, height, rawImage, result));
+        check(AnsiIsoNative.INSTANCE.ANSI_CreateTemplate(rawImage.width, rawImage.height, rawImage.raw, result));
         // @TODO mvy: alter the length of the result array according to the real size of the template
         return result;
     }
@@ -416,8 +412,6 @@ public class AnsiIso {
     It optionally stores intermediate images produced during the extraction phase. The memory for the template is allocated
     before the call (i.e., ANSI_CreateTemplate ( see page 12) does not handle the memory allocation for the template
     parameter).
-     * @param width The number of pixels indicating the width of the image
-     * @param height The number of pixels indicating the height of the image
      * @param rawImage the uncompressed raw image for template creation
      * @param skeletonImageFile Specifies the filename of bmp image where the fingerprint skeleton image will be saved. If this parameter is NULL, no skeleton image is saved.
      * @param binarizedImageFile Specifies the filename of bmp image where the fingerprint binary image will be saved. If this parameter is NULL, no binary image is saved.
@@ -426,9 +420,9 @@ public class AnsiIso {
      * @return the processed template, the maximal size of
     generated templates is 1568 bytes.
      */
-    public byte[] ansiCreateTemplateEx(int width, int height, final byte[] rawImage, final String skeletonImageFile, final String binarizedImageFile, final String minutiaeImageFile) {
+    public byte[] ansiCreateTemplateEx(final RawImage rawImage, final String skeletonImageFile, final String binarizedImageFile, final String minutiaeImageFile) {
         final byte[] result = new byte[IENGINE_MAX_ANSI_TEMPLATE_SIZE];
-        check(AnsiIsoNative.INSTANCE.ANSI_CreateTemplateEx(width, height, rawImage, result, skeletonImageFile, binarizedImageFile, minutiaeImageFile));
+        check(AnsiIsoNative.INSTANCE.ANSI_CreateTemplateEx(rawImage.width, rawImage.height, rawImage.raw, result, skeletonImageFile, binarizedImageFile, minutiaeImageFile));
         // @TODO mvy: alter the length of the result array according to the real size of the template
         return result;
     }
@@ -488,16 +482,14 @@ public class AnsiIso {
      * This function takes a raw image as input and generates the corresponding ISO/IEC 19794-2 compliant fingerprint template.
     The memory for the template is allocated before the call (i.e., ISO_CreateTemplate does not handle the memory allocation
     for the template parameter).
-     * @param width The number of pixels indicating the width of the image
-     * @param height The number of pixels indicating the height of the image
      * @param rawImage Pointer to the uncompressed raw image for template creation
      * @return     the processed template. The maximal size of
     generated template is 1566 bytes.
      */
-    public byte[] isoCreateTemplate(int width, int height, final byte[] rawImage) {
+    public byte[] isoCreateTemplate(final RawImage rawImage) {
         checkNotNull("rawImage", rawImage);
         final byte[] isoTemplate = new byte[IENGINE_MAX_ISO_TEMPLATE_SIZE];
-        check(AnsiIsoNative.INSTANCE.ISO_CreateTemplate(width, height, rawImage, isoTemplate));
+        check(AnsiIsoNative.INSTANCE.ISO_CreateTemplate(rawImage.width, rawImage.height, rawImage.raw, isoTemplate));
         return isoTemplate;
     }
 
@@ -505,8 +497,6 @@ public class AnsiIso {
      * Creates ISO/IEC 19794-2 compliant template, stores intermediate images.<p/>
      * This function takes a raw image as input and generates the corresponding ISO/IEC 19794-2 compliant fingerprint template.
     It optionally stores intermediate images produced during the extraction phase.
-     * @param width The number of pixels indicating the width of the image
-     * @param height The number of pixels indicating the height of the image
      * @param rawImage Pointer to the uncompressed raw image for template creation
      * @param skeletonImageFile Specifies the filename of bmp image where the fingerprint skeleton image will be saved. If this parameter is NULL, no skeleton image is saved.
      * @param binarizedImageFile Specifies the filename of bmp image where the fingerprint binary image will be saved. If this parameter is NULL, no binary image is saved.
@@ -515,10 +505,10 @@ public class AnsiIso {
      * @return the processed template. The maximal size of
     generated templates is 1566 bytes.
      */
-    public byte[] isoCreateTemplateEx(int width, int height, final byte[] rawImage, final String skeletonImageFile, final String binarizedImageFile, final String minutiaeImageFile) {
+    public byte[] isoCreateTemplateEx(final RawImage rawImage, final String skeletonImageFile, final String binarizedImageFile, final String minutiaeImageFile) {
         checkNotNull("rawImage", rawImage);
         final byte[] isoTemplate = new byte[IENGINE_MAX_ISO_TEMPLATE_SIZE];
-        check(AnsiIsoNative.INSTANCE.ISO_CreateTemplateEx(width, height, rawImage, isoTemplate, skeletonImageFile, binarizedImageFile, minutiaeImageFile));
+        check(AnsiIsoNative.INSTANCE.ISO_CreateTemplateEx(rawImage.width, rawImage.height, rawImage.raw, isoTemplate, skeletonImageFile, binarizedImageFile, minutiaeImageFile));
         return isoTemplate;
     }
 
