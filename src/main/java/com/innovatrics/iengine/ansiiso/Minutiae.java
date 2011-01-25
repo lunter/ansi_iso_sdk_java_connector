@@ -6,9 +6,24 @@ package com.innovatrics.iengine.ansiiso;
 public final class Minutiae {
 
     /**
-     * Minutia angle encoded in one byte. Valid range: 0-255.
+     * Minutia angle encoded in one byte. Valid range: 0-255. A clockwise angle, where:
+     * <ul><li>0 = right</li><li>64 = bottom</li><li>128 = left</li><li>196 = top</li></ul>
      */
     public final int angle;
+    /**
+     * Returns a counter-clockwise angle 0-359 degree.
+     * @return counter-clockwise angle 0-359 degree.
+     */
+    public int getAngleInDegree() {
+	return ((256 - angle) * 360) / 256;
+    }
+    /**
+     * Returns a counter-clockwise radian angle 0-2pi.
+     * @return counter-clockwise radian angle 0-2pi.
+     */
+    public double getRadianAngle() {
+	return Math.PI * getAngleInDegree() / 180;
+    }
     /**
      * Minutiae x coordinate as stored in the template.
      */
