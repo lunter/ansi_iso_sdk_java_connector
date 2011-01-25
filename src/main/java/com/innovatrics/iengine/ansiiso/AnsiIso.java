@@ -634,7 +634,7 @@ public class AnsiIso {
         return result;
     }
 
-    private static class IEngineMinutiae extends Structure {
+    public static class IEngineMinutiae extends Structure {
 
 	/**
 	 * Minutia angle encoded in one byte. Valid range: 0-255.
