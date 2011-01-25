@@ -32,6 +32,6 @@ public class RawImage {
 
     @Override
     public String toString() {
-        return "Raw image " + width + "x" + height + ", data size: " + raw.length;
+        return "Raw[" + width + "x" + height + ", data size: " + raw.length + "]";
     }
 }
