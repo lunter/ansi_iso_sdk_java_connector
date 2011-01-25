@@ -2,6 +2,7 @@ package com.innovatrics.iengine.ansiiso;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 
 /**
@@ -643,19 +644,46 @@ public class AnsiIso {
         return result;
     }
 
+    private static class IEngineMinutiae extends Structure {
+
+	/**
+	 * Minutia angle encoded in one byte. Valid range: 0-255.
+	 */
+	public byte angle;
+	/**
+	 * Minutiae x coordinate as stored in the template.
+	 */
+	public short x;
+	/**
+	 * Minutiae y coordinate as stored in the template.
+	 */
+	public short y;
+	/**
+	 * Minutiae type (bifurcation/ending)
+	 */
+	public byte type;
+	public Minutiae toMinutiae() {
+	    return new Minutiae(angle < 0 ? angle + 256 : angle, x, y, MinutiaeTypeEnum.fromVal(type));
+	}
+    }
+
     /**
      * Returns minutiae stored in ANSI/INCITS 378 compliant template.<p/>
      * This function returns minutiae angles and minutiae positions stored in ANSI/INCITS 378 compliant template
      * @param ansiTemplate ANSI/INCITS 378 template
      * @return Initialized minutiae array (maximal minutiae count in ANSI/INCITS 378 template is 256).
      */
-    public IEngineMinutiae[] ansiGetMinutiae(final byte[] ansiTemplate) {
+    public Minutiae[] ansiGetMinutiae(final byte[] ansiTemplate) {
         checkNotNull("ansiTemplate", ansiTemplate);
         final IntByReference length = new IntByReference();
         check(AnsiIsoNative.INSTANCE.ANSI_GetMinutiae(ansiTemplate, null, length));
         final IEngineMinutiae[] result = new IEngineMinutiae[length.getValue()];
         check(AnsiIsoNative.INSTANCE.ANSI_GetMinutiae(ansiTemplate, result, length));
-        return result;
+	final Minutiae[] r = new Minutiae[result.length];
+	for (int i = 0; i < result.length; i++) {
+	    r[i] = result[i].toMinutiae();
+	}
+	return r;
     }
 
     /**
@@ -799,13 +827,17 @@ public class AnsiIso {
      * @param isoTemplate ISO/IEC 19794-2 template
      * @return Initialized minutiae array. Maximal minutiae count in ISO/IEC 19794-2 template is 256
      */
-    public IEngineMinutiae[] isoGetMinutiae(final byte[] isoTemplate) {
+    public Minutiae[] isoGetMinutiae(final byte[] isoTemplate) {
         checkNotNull("isoTemplate", isoTemplate);
         final IntByReference minutiaeCount = new IntByReference();
         check(AnsiIsoNative.INSTANCE.ISO_GetMinutiae(isoTemplate, null, minutiaeCount));
         final IEngineMinutiae[] result = new IEngineMinutiae[minutiaeCount.getValue()];
         check(AnsiIsoNative.INSTANCE.ISO_GetMinutiae(isoTemplate, result, minutiaeCount));
-        return result;
+	final Minutiae[] r = new Minutiae[result.length];
+	for (int i = 0; i < result.length; i++) {
+	    r[i] = result[i].toMinutiae();
+	}
+	return r;
     }
 
     /**
