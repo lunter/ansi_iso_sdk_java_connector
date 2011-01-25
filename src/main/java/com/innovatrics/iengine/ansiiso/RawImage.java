@@ -1,7 +1,7 @@
 package com.innovatrics.iengine.ansiiso;
 
 /**
- * Represents a RAW image data.
+ * Represents a RAW 8-bit greyscale image data. 0 = black, 255 = white.
  * @author Martin Vysny
  */
 public class RawImage {
