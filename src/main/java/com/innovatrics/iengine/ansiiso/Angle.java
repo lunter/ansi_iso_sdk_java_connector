@@ -4,7 +4,7 @@ package com.innovatrics.iengine.ansiiso;
  * Represents an angle, in various units.
  * @author Martin Vysny
  */
-public class Angle {
+public final class Angle {
 
     /**
      * Valid range: 0-255. A clockwise angle, where:

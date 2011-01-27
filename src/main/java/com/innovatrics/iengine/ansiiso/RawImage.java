@@ -16,7 +16,7 @@ import java.awt.image.WritableRaster;
  * Represents a RAW 8-bit greyscale image data. 0 = black, 255 = white.
  * @author Martin Vysny
  */
-public class RawImage {
+public final class RawImage {
 
     /**
      * Creates a RAW image data.

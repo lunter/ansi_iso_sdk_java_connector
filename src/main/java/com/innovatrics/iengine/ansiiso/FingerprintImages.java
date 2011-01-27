@@ -4,7 +4,7 @@ package com.innovatrics.iengine.ansiiso;
  * Contains analyzed fingerprint images.
  * @author Martin Vysny
  */
-public class FingerprintImages {
+public final class FingerprintImages {
     /**
      * The ISO or ANSI template. The maximum size of ISO image is {@value AnsiIso#IENGINE_MAX_ISO_TEMPLATE_SIZE} bytes. The maximum size of ANSI image is {@value AnsiIso#IENGINE_MAX_ANSI_TEMPLATE_SIZE} bytes.
      */

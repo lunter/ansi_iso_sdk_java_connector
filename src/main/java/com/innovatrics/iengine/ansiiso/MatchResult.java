@@ -7,7 +7,7 @@ import java.util.List;
  * Contains a match verification result.
  * @author Martin Vysny
  */
-public class MatchResult {
+public final class MatchResult {
     /**
      * Quality score, 0..100.
      */
