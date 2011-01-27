@@ -17,7 +17,7 @@ public class Angle {
      * Returns a counter-clockwise angle 0-359 degree, 0 = right.
      * @return counter-clockwise angle 0-359 degree.
      */
-    public int getAngleInDegree() {
+    public int getDegree() {
 	return ((256 - toInt(angle)) * 360) / 256;
     }
 
@@ -25,8 +25,8 @@ public class Angle {
      * Returns a counter-clockwise radian angle 0-2pi; 0 = right.
      * @return counter-clockwise radian angle 0-2pi.
      */
-    public double getRadianAngle() {
-	return Math.PI * getAngleInDegree() / 180;
+    public double getRadian() {
+	return Math.PI * getDegree() / 180;
     }
 
     private static int toInt(byte unsigned) {
@@ -43,6 +43,6 @@ public class Angle {
 
     @Override
     public String toString() {
-	return "Angle{" + getAngleInDegree() + '}';
+	return "Angle{" + getDegree() + '}';
     }
 }
