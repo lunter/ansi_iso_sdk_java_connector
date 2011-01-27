@@ -50,5 +50,10 @@ public final class MatchResult {
 	    this.galleryMinutiaIndex = galleryMinutiaIndex;
 	    this.quality = quality;
 	}
+
+	@Override
+	public String toString() {
+	    return "Match{" + probeMinutiaIndex + "<->" + galleryMinutiaIndex + " at " + quality + "%}";
+	}
     }
 }
