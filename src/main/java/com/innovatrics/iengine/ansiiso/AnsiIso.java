@@ -4,6 +4,8 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * JNA bindings for the IEngine ANSI-ISO API. Requires the JNA library version 3.0.9.
@@ -529,9 +531,8 @@ public class AnsiIso {
      */
     public FingerprintImages isoCreateTemplateEx2(final RawImage rawImage) {
         checkNotNull("rawImage", rawImage);
-	final IntByReference blockWidth = new IntByReference();
-	final IntByReference blockHeight = new IntByReference();
-        check(AnsiIsoNative.INSTANCE.ISO_CreateTemplateEx2(rawImage.width, rawImage.height, rawImage.raw, null, null, null, null, blockWidth, blockHeight, null, null, null));
+	final IntByReference blockWidth = new IntByReference((rawImage.width -1)/BLOCK_SIZE_PIXELS+1);
+	final IntByReference blockHeight = new IntByReference((rawImage.height -1)/BLOCK_SIZE_PIXELS+1);
         final byte[] isoTemplate = new byte[IENGINE_MAX_ISO_TEMPLATE_SIZE];
 	final int imageSize = rawImage.width * rawImage.height;
 	final byte[] filteredImage = new byte[imageSize];
@@ -540,12 +541,14 @@ public class AnsiIso {
 	final int maskSize = blockWidth.getValue() * blockHeight.getValue();
 	final byte[] mask=new byte[maskSize];
 	final byte[] orientation=new byte[maskSize];
-	final byte[] quality=new byte[maskSize];
-        check(AnsiIsoNative.INSTANCE.ISO_CreateTemplateEx2(rawImage.width, rawImage.height, rawImage.raw, isoTemplate, filteredImage, binarizedImage, skeletonImage, blockWidth, blockHeight, mask, orientation, quality));
+	// ignore quality map for now, it is not yet implemented.
+        check(AnsiIsoNative.INSTANCE.ISO_CreateTemplateEx2(rawImage.width, rawImage.height, rawImage.raw, isoTemplate, filteredImage, binarizedImage, skeletonImage, blockWidth, blockHeight, mask, orientation, null));
 	return new FingerprintImages(isoTemplate, new RawImage(rawImage.width, rawImage.height, filteredImage), new RawImage(rawImage.width, rawImage.height, binarizedImage),
 		new RawImage(rawImage.width, rawImage.height, skeletonImage), new RawImage(blockWidth.getValue(), blockHeight.getValue(), mask),
-		new RawImage(blockWidth.getValue(), blockHeight.getValue(), orientation), new RawImage(blockWidth.getValue(), blockHeight.getValue(), quality));
+		new RawImage(blockWidth.getValue(), blockHeight.getValue(), orientation));
     }
+
+    public static final int BLOCK_SIZE_PIXELS = 12;
 
     /**
      * Compares two ISO/IEC 19794-2 compliant templates.<p/>
@@ -597,6 +600,8 @@ public class AnsiIso {
         return score.getValue();
     }
 
+    public static final int MAX_MINUTIAE_POINTS = 256;
+
         /**
      * Compares specified finger views from ISO/IEC 19794-2 compliant templates.<p/>
      * This function compares given finger views from ISO/IEC 19794-2 compliant templates and outputs a match score. The score
@@ -626,11 +631,15 @@ public class AnsiIso {
         final IntByReference dy = new IntByReference();
         final IntByReference rotation = new IntByReference();
         final IntByReference associationCount = new IntByReference();
-	final byte[] assocProbeMinutiae = new byte[256];
-	final byte[] assocGalleryMinutiae = new byte[256];
-	final byte[] assocQuality = new byte[256];
+	final byte[] assocProbeMinutiae = new byte[MAX_MINUTIAE_POINTS];
+	final byte[] assocGalleryMinutiae = new byte[MAX_MINUTIAE_POINTS];
+	final byte[] assocQuality = new byte[MAX_MINUTIAE_POINTS];
         check(AnsiIsoNative.INSTANCE.ISO_VerifyMatchEx2(probeTemplate, probeView, galleryTemplate, galleryView, maxRotation, score, dx, dy, rotation, associationCount, assocProbeMinutiae, assocGalleryMinutiae, assocQuality));
-	return new MatchResult(score.getValue(), dx.getValue(), dy.getValue(), rotation.getValue(), associationCount.getValue(), assocProbeMinutiae, assocGalleryMinutiae, assocQuality);
+	final List<MatchResult.Match> minutiaMatches = new ArrayList<MatchResult.Match>(associationCount.getValue());
+	for (int i=0; i<associationCount.getValue();i++){
+	    minutiaMatches.add(new MatchResult.Match(assocProbeMinutiae[i], assocGalleryMinutiae[i], assocQuality[i]));
+	}
+	return new MatchResult(score.getValue(), dx.getValue(), dy.getValue(), new Angle((byte)rotation.getValue()), minutiaMatches);
     }
 
     // Template Manipulation Functions
@@ -723,8 +732,8 @@ public class AnsiIso {
 	 * Minutiae type (bifurcation/ending)
 	 */
 	public byte type;
-	public Minutiae toMinutiae() {
-	    return new Minutiae(angle < 0 ? angle + 256 : angle, x, y, MinutiaeTypeEnum.fromVal(type));
+	public Minutia toMinutiae() {
+	    return new Minutia(new Angle(angle), x, y, MinutiaeTypeEnum.fromVal(type));
 	}
     }
 
@@ -732,15 +741,15 @@ public class AnsiIso {
      * Returns minutiae stored in ANSI/INCITS 378 compliant template.<p/>
      * This function returns minutiae angles and minutiae positions stored in ANSI/INCITS 378 compliant template
      * @param ansiTemplate ANSI/INCITS 378 template
-     * @return Initialized minutiae array (maximal minutiae count in ANSI/INCITS 378 template is 256).
+     * @return Initialized minutiae array (maximal minutiae count in ANSI/INCITS 378 template is {@value #MAX_MINUTIAE_POINTS}).
      */
-    public Minutiae[] ansiGetMinutiae(final byte[] ansiTemplate) {
+    public Minutia[] ansiGetMinutiae(final byte[] ansiTemplate) {
         checkNotNull("ansiTemplate", ansiTemplate);
         final IntByReference length = new IntByReference();
         check(AnsiIsoNative.INSTANCE.ANSI_GetMinutiae(ansiTemplate, null, length));
         final IEngineMinutiae[] result = new IEngineMinutiae[length.getValue()];
         check(AnsiIsoNative.INSTANCE.ANSI_GetMinutiae(ansiTemplate, result, length));
-	final Minutiae[] r = new Minutiae[result.length];
+	final Minutia[] r = new Minutia[result.length];
 	for (int i = 0; i < result.length; i++) {
 	    r[i] = result[i].toMinutiae();
 	}
@@ -886,15 +895,15 @@ public class AnsiIso {
      * Returns minutiae stored in ISO/IEC 19794-2 compliant template.<p/>
      * This function returns minutiae angles and minutiae positions stored in ISO/IEC 19794-2 compliant template
      * @param isoTemplate ISO/IEC 19794-2 template
-     * @return Initialized minutiae array. Maximal minutiae count in ISO/IEC 19794-2 template is 256
+     * @return Initialized minutiae array. Maximal minutiae count in ISO/IEC 19794-2 template is {@value #MAX_MINUTIAE_POINTS}
      */
-    public Minutiae[] isoGetMinutiae(final byte[] isoTemplate) {
+    public Minutia[] isoGetMinutiae(final byte[] isoTemplate) {
         checkNotNull("isoTemplate", isoTemplate);
         final IntByReference minutiaeCount = new IntByReference();
         check(AnsiIsoNative.INSTANCE.ISO_GetMinutiae(isoTemplate, null, minutiaeCount));
         final IEngineMinutiae[] result = new IEngineMinutiae[minutiaeCount.getValue()];
         check(AnsiIsoNative.INSTANCE.ISO_GetMinutiae(isoTemplate, result, minutiaeCount));
-	final Minutiae[] r = new Minutiae[result.length];
+	final Minutia[] r = new Minutia[result.length];
 	for (int i = 0; i < result.length; i++) {
 	    r[i] = result[i].toMinutiae();
 	}
