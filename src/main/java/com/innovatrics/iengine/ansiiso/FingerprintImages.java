@@ -28,7 +28,7 @@ public class FingerprintImages {
     public final RawImage mask;
     /**
      * The image orientation map, scaled down {@value AnsiIso#BLOCK_SIZE_PIXELS} times relative to the fingerprint image. Not really an image -
-     * each 'pixel' is really an angle 0-255, counter-clockwise; 0 = right.
+     * each 'pixel' is really an angle. Use {@link Angle} class to work with angles.
      */
     public final RawImage orientation;
 
