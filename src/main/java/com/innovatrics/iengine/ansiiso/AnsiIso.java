@@ -531,18 +531,26 @@ public class AnsiIso {
      */
     public FingerprintImages isoCreateTemplateEx2(final RawImage rawImage) {
         checkNotNull("rawImage", rawImage);
-	final IntByReference blockWidth = new IntByReference((rawImage.width -1)/BLOCK_SIZE_PIXELS+1);
-	final IntByReference blockHeight = new IntByReference((rawImage.height -1)/BLOCK_SIZE_PIXELS+1);
+	final int expectedBlockWidth = (rawImage.width - 1) / BLOCK_SIZE_PIXELS + 1;
+	final IntByReference blockWidth = new IntByReference(expectedBlockWidth);
+	final int expectedBlockHeight = (rawImage.height - 1) / BLOCK_SIZE_PIXELS + 1;
+	final IntByReference blockHeight = new IntByReference(expectedBlockHeight);
         final byte[] isoTemplate = new byte[IENGINE_MAX_ISO_TEMPLATE_SIZE];
 	final int imageSize = rawImage.width * rawImage.height;
 	final byte[] filteredImage = new byte[imageSize];
 	final byte[] binarizedImage = new byte[imageSize];
 	final byte[] skeletonImage = new byte[imageSize];
-	final int maskSize = blockWidth.getValue() * blockHeight.getValue();
+	final int maskSize = expectedBlockWidth * expectedBlockHeight;
 	final byte[] mask=new byte[maskSize];
 	final byte[] orientation=new byte[maskSize];
 	// ignore quality map for now, it is not yet implemented.
-        check(AnsiIsoNative.INSTANCE.ISO_CreateTemplateEx2(rawImage.width, rawImage.height, rawImage.raw, isoTemplate, filteredImage, binarizedImage, skeletonImage, blockWidth, blockHeight, mask, orientation, null));
+	check(AnsiIsoNative.INSTANCE.ISO_CreateTemplateEx2(rawImage.width, rawImage.height, rawImage.raw, isoTemplate, filteredImage, binarizedImage, skeletonImage, blockWidth, blockHeight, mask, orientation, null));
+	if (blockWidth.getValue() != expectedBlockWidth) {
+	    throw new RuntimeException("Expected blockwidth " + expectedBlockWidth + " but got " + blockWidth.getValue());
+	}
+	if (blockHeight.getValue() != expectedBlockHeight) {
+	    throw new RuntimeException("Expected blockwidth " + expectedBlockHeight + " but got " + blockHeight.getValue());
+	}
 	return new FingerprintImages(isoTemplate, new RawImage(rawImage.width, rawImage.height, filteredImage), new RawImage(rawImage.width, rawImage.height, binarizedImage),
 		new RawImage(rawImage.width, rawImage.height, skeletonImage), new RawImage(blockWidth.getValue(), blockHeight.getValue(), mask),
 		new RawImage(blockWidth.getValue(), blockHeight.getValue(), orientation));
