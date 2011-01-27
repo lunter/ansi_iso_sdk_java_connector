@@ -7,7 +7,7 @@ extern "C" {
 
 #define IENGINE_API __declspec(dllimport)
 
-#define BYTE unsigned char
+typedef unsigned char BYTE;
 
 typedef struct iengine_version 
 {
@@ -196,17 +196,18 @@ IENGINE_API int IEngine_Init();
 IENGINE_API int IEngine_Terminate();
 IENGINE_API int IEngine_GetVersion(IENGINE_VERSION *version);
 IENGINE_API char * IEngine_GetErrorMessage( int errcode );
-IENGINE_API int IEngine_SetLicenseContent(unsigned char *licenseContent, int length);
+IENGINE_API int IEngine_SetLicenseContent(const unsigned char *licenseContent, int length);
 
 
 // Conversion Functions
 
-IENGINE_API int ANSI_ConvertToISO(BYTE *ansiTemplate,int *length,BYTE *isoTemplate);
-IENGINE_API int ISO_ConvertToANSI(BYTE *isoTemplate,int *length,BYTE *ansiTemplate);
-IENGINE_API int ISO_ConvertToISOCardCC(BYTE *isoTemplate,int maximumMinutiaeCount, IENGINE_SORT_ORDER minutiaeOrder, IENGINE_SORT_ORDER minutiaeSecondaryOrder, int *length,BYTE *isoCCTemplate);
-IENGINE_API int ISO_CARD_CC_ConvertToISO(BYTE *isoCCTemplate,int *length,BYTE *isoTemplate);
+IENGINE_API int ANSI_ConvertToISO(const BYTE *ansiTemplate,int *length,BYTE *isoTemplate);
+IENGINE_API int ISO_ConvertToANSI(const BYTE *isoTemplate,int *length,BYTE *ansiTemplate);
+IENGINE_API int ISO_ConvertToISOCardCC(const BYTE *isoTemplate,int maximumMinutiaeCount, IENGINE_SORT_ORDER minutiaeOrder, IENGINE_SORT_ORDER minutiaeSecondaryOrder, int *length,BYTE *isoCCTemplate);
+IENGINE_API int ISO_CARD_CC_ConvertToISO(const BYTE *isoCCTemplate,int *length,BYTE *isoTemplate);
 IENGINE_API int IEngine_GetImageQuality( int width, int height, const BYTE *rawImage, int *quality );
 IENGINE_API int IEngine_LoadBMP(const char *filename,int *width, int *height,BYTE *rawImage, int *length);
+IENGINE_API int IEngine_MakeBMP(int width, int height,const BYTE *rawImage, BYTE *bmpImageData, int *length);
 IENGINE_API int IEngine_ConvertBMP(const BYTE *bmpImage,int *width, int *height,BYTE *rawImage, int *length);
 
 
@@ -219,8 +220,10 @@ IENGINE_API int ANSI_VerifyMatchEx(const BYTE *probeTemplate, int probeView, con
 
 IENGINE_API int ISO_CreateTemplate(int width, int height, const BYTE *rawImage, BYTE * isoTemplate);
 IENGINE_API int ISO_CreateTemplateEx(int width, int height, const BYTE *rawImage, BYTE * isoTemplate, const char *skeletonImageFile, const char *binarizedImageFile, const char *minutiaeImageFile);
+IENGINE_API int ISO_CreateTemplateEx2(int width, int height, const BYTE *rawImage, BYTE * isoTemplate, BYTE *filteredImage, BYTE *binarizedImage, BYTE *skeletonImage, int *blockWidth, int *blockHeight, BYTE * bMask, BYTE *bOrientation, BYTE * bQuality)
 IENGINE_API int ISO_VerifyMatch(const BYTE *probeTemplate, const BYTE *galleryTemplate, int maxRotation, int *score); 
 IENGINE_API int ISO_VerifyMatchEx(const BYTE *probeTemplate, int probeView, const BYTE *galleryTemplate, int galleryView, int maxRotation, int *score); 
+IENGINE_API int ISO_VerifyMatchEx2(const BYTE *probeTemplate, int probeView, const BYTE *galleryTemplate, int galleryView, int maxRotation, int *score,int*dx,int *dy,int *rotation,int *associationCount,BYTE *assocProbeMinutiae,BYTE *assocGalleryMinutiae,BYTE *assocQuality);
 
 
 // Template Manipulation Functions
@@ -232,7 +235,7 @@ IENGINE_API int ANSI_DrawMinutiae(const BYTE *ansiTemplate,int width,int height,
 IENGINE_API int ANSI_GetMinutiae(const BYTE *ansiTemplate, IENGINE_MINUTIAE minutiae[256], int *minutiaeCount);
 IENGINE_API int ANSI_MergeTemplates(const BYTE *referenceTemplate,const BYTE *addedTemplate,int *length,BYTE *outTemplate);
 IENGINE_API int ANSI_LoadTemplate(const char *filename, BYTE *ansiTemplate);
-IENGINE_API int ANSI_RemoveMinutiae(BYTE *inTemplate, int maximumMinutiaeCount, int *length, BYTE *outTemplate);
+IENGINE_API int ANSI_RemoveMinutiae(const BYTE *inTemplate, int maximumMinutiaeCount, int *length, BYTE *outTemplate);
 IENGINE_API int ANSI_SaveTemplate(const char *filename, const BYTE *ansiTemplate);
 
 IENGINE_API int ISO_GetTemplateParameter(const BYTE *isoTemplate, IENGINE_TEMPLATE_PARAMETER parameter, int *value);
@@ -242,10 +245,10 @@ IENGINE_API int ISO_DrawMinutiae(const BYTE *isoTemplate,int width,int height, u
 IENGINE_API int ISO_GetMinutiae(const BYTE *isoTemplate, IENGINE_MINUTIAE minutiae[256], int *minutiaeCount);
 IENGINE_API int ISO_MergeTemplates(const BYTE *referenceTemplate,const BYTE *addedTemplate,int *length,BYTE *outTemplate);
 IENGINE_API int ISO_LoadTemplate(const char *filename, BYTE *isoTemplate);
-IENGINE_API int ISO_RemoveMinutiae(BYTE *inTemplate, int maximumMinutiaeCount, int *length, BYTE *outTemplate);
+IENGINE_API int ISO_RemoveMinutiae(const BYTE *inTemplate, int maximumMinutiaeCount, int *length, BYTE *outTemplate);
 IENGINE_API int ISO_SaveTemplate(const char *filename, const BYTE *isoTemplate);
 
-IENGINE_API int IEngine_ConvertTemplate(IENGINE_TEMPLATE_FORMAT inputTemplateType, BYTE *inputTemplate, IENGINE_TEMPLATE_FORMAT outputTemplateType, int *length, BYTE *outputTemplate);
+IENGINE_API int IEngine_ConvertTemplate(IENGINE_TEMPLATE_FORMAT inputTemplateType, const BYTE *inputTemplate, IENGINE_TEMPLATE_FORMAT outputTemplateType, int *length, BYTE *outputTemplate);
 
 
 
