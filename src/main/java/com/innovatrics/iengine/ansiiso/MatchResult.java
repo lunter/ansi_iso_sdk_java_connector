@@ -15,9 +15,12 @@ public final class MatchResult {
     public final int dx;
     public final int dy;
     /**
-     * Rotation angle.
+     * Rotation angle between the probe template and the gallery template.
      */
     public final Angle rotation;
+    /**
+     * List of minutia matches. To retrieve the minutia list just use {@link AnsiIso#ansiGetMinutiae(byte[])} or {@link AnsiIso#isoGetMinutiae(byte[])}.
+     */
     public final List<Match> minutiaMatches;
 
     public MatchResult(int score, int dx, int dy, Angle rotation, List<Match> minutiaMatches) {
