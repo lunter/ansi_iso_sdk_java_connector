@@ -1,7 +1,7 @@
 package com.innovatrics.iengine.ansiiso;
 
 /**
- * Represents an angle.
+ * Represents an angle, in various units.
  * @author Martin Vysny
  */
 public class Angle {
@@ -9,7 +9,7 @@ public class Angle {
     /**
      * Valid range: 0-255. A clockwise angle, where:
      * <ul><li>0 = right</li><li>64 = bottom</li><li>128 = left</li><li>196 = top</li></ul>
-     * Use {@link #getAngleInDegree()} and/or {@link #getRadianAngle()} to retrieve the standardized angle.
+     * Use {@link #getDegree()} and/or {@link #getRadian()} to retrieve the standardized angle.
      */
     public final byte angle;
 
