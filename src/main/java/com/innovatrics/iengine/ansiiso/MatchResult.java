@@ -28,7 +28,7 @@ public final class MatchResult {
 	this.dx = dx;
 	this.dy = dy;
 	this.rotation = rotation;
-	this.minutiaMatches = Collections.unmodifiableList(minutiaMatches);
+	this.minutiaMatches = minutiaMatches;
     }
 
     public static class Match {
