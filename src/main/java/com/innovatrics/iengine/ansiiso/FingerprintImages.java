@@ -28,9 +28,20 @@ public final class FingerprintImages {
     public final RawImage mask;
     /**
      * The image orientation map, scaled down {@value AnsiIso#BLOCK_SIZE_PIXELS} times relative to the fingerprint image. Not really an image -
-     * each 'pixel' is really an angle. Use {@link Angle} class to work with angles.
+     * each 'pixel' is really an angle. To retrieve the angle value use the {@link #getOrientationAngleRad(int, int)} function.
      */
     public final RawImage orientation;
+
+    /**
+     * Returns the orientation angle for given block (see {@link #orientation} for details on blocks). Returns the counter-clockwise radian angle (0 pointing to the right), using the following formula:
+     * <pre>angle = -new Angle(orientation.getPixel(x, y)).getRadian() / 2;</pre>
+     * @param x the x block coordinate.
+     * @param y the y block coordinate.
+     * @return the counter-clockwise radian angle (0 pointing to the right)
+     */
+    public double getOrientationAngleRad(int x, int y) {
+	return -new Angle(orientation.getPixel(x, y)).getRadian() / 2;
+    }
 
     public FingerprintImages(byte[] template, RawImage filteredImage, RawImage binarizedImage, RawImage skeletonImage, RawImage mask, RawImage orientation) {
 	this.template = template;
