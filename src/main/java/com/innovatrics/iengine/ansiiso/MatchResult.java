@@ -1,6 +1,5 @@
 package com.innovatrics.iengine.ansiiso;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -9,7 +8,7 @@ import java.util.List;
  */
 public final class MatchResult {
     /**
-     * Quality score, 0..100.
+     * Quality score, 0..31.
      */
     public final int score;
     public final int dx;
