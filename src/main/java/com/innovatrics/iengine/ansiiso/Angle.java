@@ -12,21 +12,29 @@ public final class Angle {
      * Use {@link #getDegree()} and/or {@link #getRadian()} to retrieve the standardized angle.
      */
     public final byte angle;
+    private Integer degree = null;
 
     /**
      * Returns a counter-clockwise angle 0-359 degree, 0 = right.
      * @return counter-clockwise angle 0-359 degree.
      */
     public int getDegree() {
-	return ((256 - toInt(angle)) * 360) / 256;
+	if (degree == null) {
+	    degree = ((256 - toInt(angle)) * 360) / 256;
+	}
+	return degree;
     }
+    private Double radian = null;
 
     /**
      * Returns a counter-clockwise radian angle 0-2pi; 0 = right.
      * @return counter-clockwise radian angle 0-2pi.
      */
     public double getRadian() {
-	return Math.PI * getDegree() / 180;
+	if (radian == null) {
+	    radian = Math.PI * getDegree() / 180;
+	}
+	return radian;
     }
 
     private static int toInt(byte unsigned) {
