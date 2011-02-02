@@ -1,5 +1,6 @@
 package com.innovatrics.iengine.ansiiso;
 
+import com.innovatrics.iengine.ansiiso.FingerprintImages.Orientations;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
@@ -553,7 +554,7 @@ public class AnsiIso {
 	}
 	return new FingerprintImages(isoTemplate, new RawImage(rawImage.width, rawImage.height, filteredImage), new RawImage(rawImage.width, rawImage.height, binarizedImage),
 		new RawImage(rawImage.width, rawImage.height, skeletonImage), new RawImage(blockWidth.getValue(), blockHeight.getValue(), mask),
-		new RawImage(blockWidth.getValue(), blockHeight.getValue(), orientation));
+		new Orientations(blockWidth.getValue(), blockHeight.getValue(), orientation));
     }
 
     public static final int BLOCK_SIZE_PIXELS = 12;
