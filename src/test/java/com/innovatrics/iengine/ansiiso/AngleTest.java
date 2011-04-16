@@ -32,4 +32,12 @@ public class AngleTest {
 	assertEquals(180, Angle.radToDeg(Math.PI));
 	assertEquals(90, Angle.radToDeg(Math.PI / 2));
     }
+
+    @Test
+    public void testDegToRad() {
+	assertEquals(0, Angle.degToRad(0), 0);
+	assertEquals(- Math.PI / 2, Angle.degToRad(270), 0);
+	assertEquals(Math.PI, Angle.degToRad(180),0);
+	assertEquals(Math.PI/2, Angle.degToRad(90),0);
+    }
 }
