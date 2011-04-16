@@ -74,4 +74,13 @@ public final class RawImage {
     public Dimension getDimension() {
 	return new Dimension(width, height);
     }
+
+    /**
+     * Inverts colors of this image.
+     */
+    public void invert() {
+	for (int i = 0; i < raw.length; i++) {
+	    raw[i] = (byte) (raw[i] ^ 0xFF);
+	}
+    }
 }
