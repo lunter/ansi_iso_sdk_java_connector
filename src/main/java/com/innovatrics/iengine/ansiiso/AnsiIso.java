@@ -227,7 +227,7 @@ public class AnsiIso {
                 errMsg = AnsiIsoNative.INSTANCE.IEngine_GetErrorMessage(result);
                 break;
         }
-        throw new AnsiIsoException(errMsg == null ? "Unknown error #" + result : errMsg, result);
+        throw new AnsiIsoException("#" + result + ": " + (errMsg == null ? "Unknown error" : errMsg), result);
     }
 
     // Init, Terminate and other General Functions
