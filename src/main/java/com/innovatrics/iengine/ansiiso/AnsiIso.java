@@ -160,7 +160,7 @@ public class AnsiIso {
 
         int ISO_DrawMinutiae(final byte[] isoTemplate, int width, int height, byte[] inputImage, byte[] outputBmpImage, IntByReference outputImageLength);
 
-        int ISO_GetMinutiae(final byte[] isoTemplate, IEngineMinutiae[] minutiae, IntByReference minutiaeCount);
+        int ISO_GetMinutiae(final byte[] isoTemplate, IEngineMinutiae.ByValue[] minutiae, IntByReference minutiaeCount);
 
         int ISO_MergeTemplates(final byte[] referenceTemplate, final byte[] addedTemplate, IntByReference length, byte[] outTemplate);
 
@@ -744,6 +744,7 @@ public class AnsiIso {
 	public Minutia toMinutiae() {
 	    return new Minutia(new Angle(angle), x, y, MinutiaeTypeEnum.fromVal(type));
 	}
+	public static class ByValue extends IEngineMinutiae implements Structure.ByValue{};
     }
 
     /**
@@ -756,6 +757,10 @@ public class AnsiIso {
         checkNotNull("ansiTemplate", ansiTemplate);
         final IntByReference length = new IntByReference();
         check(AnsiIsoNative.INSTANCE.ANSI_GetMinutiae(ansiTemplate, null, length));
+	if (length.getValue() == 0) {
+	    // fixes http://192.168.1.1:3000/issues/704
+	    return new Minutia[0];
+	}
         final IEngineMinutiae[] result = new IEngineMinutiae[length.getValue()];
         check(AnsiIsoNative.INSTANCE.ANSI_GetMinutiae(ansiTemplate, result, length));
 	final Minutia[] r = new Minutia[result.length];
@@ -910,7 +915,7 @@ public class AnsiIso {
         checkNotNull("isoTemplate", isoTemplate);
         final IntByReference minutiaeCount = new IntByReference();
         check(AnsiIsoNative.INSTANCE.ISO_GetMinutiae(isoTemplate, null, minutiaeCount));
-        final IEngineMinutiae[] result = new IEngineMinutiae[minutiaeCount.getValue()];
+        final IEngineMinutiae.ByValue[] result = new IEngineMinutiae.ByValue[minutiaeCount.getValue()];
         check(AnsiIsoNative.INSTANCE.ISO_GetMinutiae(isoTemplate, result, minutiaeCount));
 	final Minutia[] r = new Minutia[result.length];
 	for (int i = 0; i < result.length; i++) {
