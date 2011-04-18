@@ -28,6 +28,9 @@ public final class RawImage {
 	this.width = width;
 	this.height = height;
 	this.raw = raw;
+        if (raw.length < width * height) {
+            throw new IllegalArgumentException("Parameter raw: invalid size: expected " + width * height + " but got " + raw.length);
+        }
     }
     /**
      * Contains the width of converted image, in pixels.
