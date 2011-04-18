@@ -20,11 +20,42 @@ public final class Angle {
      */
     public int getDegree() {
 	if (degree == null) {
-	    degree = ((256 - toInt(angle)) * 360) / 256;
+	    degree = (((256 - toInt(angle)) * 360) / 256) % 360;
 	}
 	return degree;
     }
     private Double radian = null;
+
+    /**
+     * Converts an angle in radians, to an angle in degrees.
+     * @param rad angle in radians
+     * @return angle in degrees, -180 .. 180
+     */
+    public static int radToDeg(double rad) {
+	int angle = (int) (rad * 180 / Math.PI);
+	angle = angle % 360;
+	if (angle < -180) {
+	    angle += 360;
+	}
+	if (angle > 180) {
+	    angle -= 360;
+	}
+	return angle;
+    }
+
+    /**
+     * Converts an angle in degrees, to an angle in radians.
+     * @param deg angle in degrees.
+     * @return angle in radians, -PI .. PI
+     */
+    public static double degToRad(int deg) {
+	double angle = deg * Math.PI / 180;
+	angle = angle - ((long) (angle / Math.PI / 2)) * Math.PI * 2;
+	if (angle > Math.PI) {
+	    angle -= 2 * Math.PI;
+	}
+	return angle;
+    }
 
     /**
      * Returns a counter-clockwise radian angle 0-2pi; 0 = right.

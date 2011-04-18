@@ -3,7 +3,7 @@
     <groupId>com.innovatrics.iengine.ansiiso</groupId>
     <artifactId>iengine-ansi-iso</artifactId>
     <packaging>jar</packaging>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.5-SNAPSHOT</version>
     <name>iengine-ansi-iso</name>
     <url>http://www.innovatrics.com</url>
     <inceptionYear>2010</inceptionYear>
