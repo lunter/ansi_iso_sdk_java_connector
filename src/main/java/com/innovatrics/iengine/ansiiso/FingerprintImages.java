@@ -1,11 +1,21 @@
 package com.innovatrics.iengine.ansiiso;
 
+import java.awt.Dimension;
+
 /**
  * Contains analyzed fingerprint images.
  * @author Martin Vysny
  */
 public final class FingerprintImages {
 
+    /**
+     * Returns the size of the fingerprint image.
+     * @return the size of the fingerprint image.
+     */
+    public Dimension getSize() {
+        return filteredImage.getSize();
+    }
+    
     /**
      * The ISO or ANSI template. The maximum size of ISO image is {@value AnsiIso#IENGINE_MAX_ISO_TEMPLATE_SIZE} bytes. The maximum size of ANSI image is {@value AnsiIso#IENGINE_MAX_ANSI_TEMPLATE_SIZE} bytes.
      */

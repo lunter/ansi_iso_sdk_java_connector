@@ -73,8 +73,18 @@ public final class RawImage {
     /**
      * Returns size of the image.
      * @return the dimension object.
+     * @deprecated renamed to {@link #getSize()}.
      */
+    @Deprecated
     public Dimension getDimension() {
+	return getSize();
+    }
+
+    /**
+     * Returns size of the image.
+     * @return the dimension object.
+     */
+    public Dimension getSize() {
 	return new Dimension(width, height);
     }
 
