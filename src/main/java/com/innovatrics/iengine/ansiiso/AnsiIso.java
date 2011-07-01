@@ -523,9 +523,6 @@ public class AnsiIso {
      * This function takes a raw image as input and generates the corresponding ISO/IEC 19794-2 compliant fingerprint template.
     It optionally stores intermediate images produced during the extraction phase.
      * @param rawImage Pointer to the uncompressed raw image for template creation
-     * @param skeletonImageFile Specifies the filename of bmp image where the fingerprint skeleton image will be saved. If this parameter is NULL, no skeleton image is saved.
-     * @param binarizedImageFile Specifies the filename of bmp image where the fingerprint binary image will be saved. If this parameter is NULL, no binary image is saved.
-     * @param minutiaeImageFile    Specifies the filename of bmp image where the minutiae image will be saved (original fingerprint with all detected minutiae). If this parameter is NULL, no
     minutiae image is saved.
      * @return the processed template. The maximal size of
     generated templates is {@value #IENGINE_MAX_ISO_TEMPLATE_SIZE} bytes.
