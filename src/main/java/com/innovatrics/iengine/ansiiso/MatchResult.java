@@ -8,7 +8,7 @@ import java.util.List;
  */
 public final class MatchResult {
     /**
-     * Quality score, 0..31.
+     * Quality score, 0..100000.
      */
     public final int score;
     public final int dx;
@@ -22,6 +22,11 @@ public final class MatchResult {
      */
     public final List<Match> minutiaMatches;
 
+    @Override
+    public String toString() {
+        return "MatchResult{score:" + score + ", dx=" + dx + ", dy=" + dy + ", rotation=" + rotation + ", matched minutia: " + minutiaMatches.size() + '}';
+    }
+    
     public MatchResult(int score, int dx, int dy, Angle rotation, List<Match> minutiaMatches) {
 	this.score = score;
 	this.dx = dx;
