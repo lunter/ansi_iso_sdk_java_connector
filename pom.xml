@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.innovatrics.iengine.ansiiso</groupId>
     <artifactId>iengine-ansi-iso</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <version>1.5-SNAPSHOT</version>
     <name>iengine-ansi-iso</name>
     <url>http://www.innovatrics.com</url>
@@ -37,6 +37,10 @@
             </roles>
         </developer>
     </developers>
+    <modules>
+        <module>iengine-ansi-iso-internal</module>
+        <module>iengine-ansi-iso-main</module>
+    </modules>
     <build>
         <plugins>
             <plugin>
@@ -74,13 +78,8 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.1</version>
+            <version>4.10</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jna</groupId>
-            <artifactId>jna</artifactId>
-            <version>3.2.7-inno0</version>
         </dependency>
     </dependencies>
 	<properties>
