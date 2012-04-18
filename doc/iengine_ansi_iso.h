@@ -205,10 +205,21 @@ IENGINE_API int ANSI_ConvertToISO(const BYTE *ansiTemplate,int *length,BYTE *iso
 IENGINE_API int ISO_ConvertToANSI(const BYTE *isoTemplate,int *length,BYTE *ansiTemplate);
 IENGINE_API int ISO_ConvertToISOCardCC(const BYTE *isoTemplate,int maximumMinutiaeCount, IENGINE_SORT_ORDER minutiaeOrder, IENGINE_SORT_ORDER minutiaeSecondaryOrder, int *length,BYTE *isoCCTemplate);
 IENGINE_API int ISO_CARD_CC_ConvertToISO(const BYTE *isoCCTemplate,int *length,BYTE *isoTemplate);
+IENGINE_API int ISO_CARD_CC_GetMinutiaeData(const BYTE *isoCCTemplate, int *minutiaeCount, BYTE *minutiaeData, int *minutiaeDataSize);
 IENGINE_API int IEngine_GetImageQuality( int width, int height, const BYTE *rawImage, int *quality );
 IENGINE_API int IEngine_LoadBMP(const char *filename,int *width, int *height,BYTE *rawImage, int *length);
 IENGINE_API int IEngine_MakeBMP(int width, int height,const BYTE *rawImage, BYTE *bmpImageData, int *length);
 IENGINE_API int IEngine_ConvertBMP(const BYTE *bmpImage,int *width, int *height,BYTE *rawImage, int *length);
+
+#define ISO_IMAGE_FORMAT_UNCOMPRESSED 0
+#define ISO_IMAGE_FORMAT_UNCOMPRESSED_BIT_PACKED 1
+#define ISO_IMAGE_FORMAT_WSQ 2
+#define ISO_IMAGE_FORMAT_JPEG 3
+#define ISO_IMAGE_FORMAT_JPEG2000 4
+#define ISO_IMAGE_FORMAT_PNG 5
+
+IENGINE_API int IEngine_ConvertRawToIso19794_4(const unsigned char *rawImage,int width,int height,unsigned char fingerPosition, unsigned char imageFormat, unsigned int dpiX,unsigned int dpiY, unsigned char *outData,int compressionRate,int *length);
+IENGINE_API int IEngine_ConvertIso19794_4ToRaw(const unsigned char *isoFingerImage,unsigned int isoImageLength,int *width,int *height,unsigned char *fingerPosition, unsigned char *imageFormat, unsigned int *dpiX,unsigned int *dpiY, unsigned char *rawImage,int *rawImageLength);
 
 
 // Template Extraction and Matching Functions
@@ -220,10 +231,8 @@ IENGINE_API int ANSI_VerifyMatchEx(const BYTE *probeTemplate, int probeView, con
 
 IENGINE_API int ISO_CreateTemplate(int width, int height, const BYTE *rawImage, BYTE * isoTemplate);
 IENGINE_API int ISO_CreateTemplateEx(int width, int height, const BYTE *rawImage, BYTE * isoTemplate, const char *skeletonImageFile, const char *binarizedImageFile, const char *minutiaeImageFile);
-IENGINE_API int ISO_CreateTemplateEx2(int width, int height, const BYTE *rawImage, BYTE * isoTemplate, BYTE *filteredImage, BYTE *binarizedImage, BYTE *skeletonImage, int *blockWidth, int *blockHeight, BYTE * bMask, BYTE *bOrientation, BYTE * bQuality)
 IENGINE_API int ISO_VerifyMatch(const BYTE *probeTemplate, const BYTE *galleryTemplate, int maxRotation, int *score); 
 IENGINE_API int ISO_VerifyMatchEx(const BYTE *probeTemplate, int probeView, const BYTE *galleryTemplate, int galleryView, int maxRotation, int *score); 
-IENGINE_API int ISO_VerifyMatchEx2(const BYTE *probeTemplate, int probeView, const BYTE *galleryTemplate, int galleryView, int maxRotation, int *score,int*dx,int *dy,int *rotation,int *associationCount,BYTE *assocProbeMinutiae,BYTE *assocGalleryMinutiae,BYTE *assocQuality);
 
 
 // Template Manipulation Functions
