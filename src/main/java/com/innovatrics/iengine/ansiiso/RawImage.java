@@ -20,16 +20,46 @@ public final class RawImage {
 
     /**
      * Creates a RAW image data.
+     *
      * @param width Contains the width of converted image, in pixels.
      * @param height Contains the height of converted image, in pixels.
      * @param raw the raw image data.
      */
     public RawImage(int width, int height, byte[] raw) {
-	this.width = width;
-	this.height = height;
-	this.raw = raw;
+        this(width, height, raw, null, null);
+    }
+
+    /**
+     * Creates a RAW image data.
+     *
+     * @param width Contains the width of converted image, in pixels.
+     * @param height Contains the height of converted image, in pixels.
+     * @param raw the raw image data.
+     */
+    public RawImage(int width, int height, byte[] raw, Integer dpiX, Integer dpiY) {
+        this.width = width;
+        this.height = height;
+        this.raw = raw;
         if (raw.length < width * height) {
             throw new IllegalArgumentException("Parameter raw: invalid size: expected " + width * height + " but got " + raw.length);
+        }
+        this.dpiX = dpiX;
+        this.dpiY = dpiY;
+    }
+    /**
+     * Indicates horizontal resolution of the input image. null if not known.
+     */
+    public final Integer dpiX;
+    /**
+     * Indicates vertical resolution of the input image. null if not known.
+     */
+    public final Integer dpiY;
+    public boolean hasDPI() {
+        return dpiX != null && dpiY != null;
+    }
+    public void checkHasDPI() {
+        if (!hasDPI()) {
+            throw new IllegalArgumentException("Raw image " + this + " does not have DPI values filled in");
         }
     }
     /**
@@ -48,7 +78,7 @@ public final class RawImage {
 
     @Override
     public String toString() {
-	return "RawImage{" + width + "x" + height + '}';
+	return "RawImage{" + width + "x" + height + (hasDPI() ? ", DPI: " + dpiX + "x" + dpiY : "") + '}';
     }
 
     public BufferedImage toBufferedImage() {

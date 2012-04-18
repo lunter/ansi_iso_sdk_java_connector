@@ -4,6 +4,7 @@ import com.innovatrics.iengine.ansiiso.FingerprintImages.Orientations;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
+import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +108,8 @@ public class AnsiIso {
 
         int ISO_CARD_CC_ConvertToISO(byte[] isoCCTemplate, IntByReference length, byte[] isoTemplate);
 
+        int ISO_CARD_CC_GetMinutiaeData(byte[] isoCCTemplate, IntByReference minutiaeCount, byte[] minutiaeData, IntByReference minutiaeDataSize);
+
         int IEngine_GetImageQuality(int width, int height, final byte[] rawImage, IntByReference quality);
 
         int IEngine_LoadBMP(final String filename, IntByReference width, IntByReference height, byte[] rawImage, IntByReference length);
@@ -171,6 +174,9 @@ public class AnsiIso {
         int ISO_SaveTemplate(final String filename, final byte[] isoTemplate);
 
         int IEngine_ConvertTemplate(/*IENGINE_TEMPLATE_FORMAT*/int inputTemplateType, byte[] inputTemplate, /*IENGINE_TEMPLATE_FORMAT*/ int outputTemplateType, IntByReference length, byte[] outputTemplate);
+
+        int IEngine_ConvertRawToIso19794_4(byte[] rawImage,int width,int height,byte fingerPosition, byte imageFormat, int dpiX,int dpiY, byte[] outData,int compressionRate,IntByReference length);
+        int IEngine_ConvertIso19794_4ToRaw(byte[] isoFingerImage, int isoImageLength,IntByReference width,IntByReference height,ByteByReference fingerPosition, ByteByReference imageFormat, IntByReference dpiX, IntByReference dpiY, byte[] rawImage,IntByReference rawImageLength);
     }
 
     private void check(int result) {
@@ -1007,5 +1013,125 @@ public class AnsiIso {
         final byte[] result = new byte[length.getValue()];
         check(AnsiIsoNative.INSTANCE.IEngine_ConvertTemplate(inputTemplateType.ordinal(), inputTemplate, outputTemplateType.ordinal(), length, result));
         return result;
+    }
+    
+    public static enum IsoImageFormat {
+
+        UNCOMPRESSED(0),
+        UNCOMPRESSED_BIT_PACKED(1),
+        WSQ(2),
+        JPEG(3),
+        JPEG2000(4),
+        PNG(5);
+        public final byte cval;
+
+        private IsoImageFormat(int cval) {
+            this.cval = (byte) cval;
+        }
+        
+        public static IsoImageFormat fromCVal(byte cval) {
+            for (IsoImageFormat f: values()) {
+                if (f.cval == cval) {
+                    return f;
+                }
+            }
+            throw new IllegalArgumentException("Parameter cval: invalid value " + cval + ": unknown/unsupported image format");
+        }
+    }
+    
+    public static class MinutiaeData {
+        /**
+         * Number of minutiae contained in the input template (in the first finger view)
+         */
+        public int minutiaeCount;
+        /**
+         * Pointer to memory space where the memory block with encoded minutiae will be stored.
+Maximum possible size of returned minutiae data is 256*3 bytes.
+         */
+        public byte[] minutiaeData;
+
+        public MinutiaeData(int minutiaeCount, byte[] minutiaeData) {
+            this.minutiaeCount = minutiaeCount;
+            this.minutiaeData = minutiaeData;
+        }
+    }
+    
+    /**
+     * Returns data from ISO Compact Card template corresponding to encoded minutiae block (template without header and
+footer).<p/>
+* This function takes as input a Finger Minutiae Compact Card Format template (ISO_CARD_CC template) and returns data
+corresponding to encoded minutiae only (all data other then template header and footer, finger view header and extended
+data such as ridge count or zonal quality data). If input template contains multiple views, minutiae data for first view are
+returned.
+     * @param isoCCTemplate ISO Compact Card template, must not be null.
+     * @return minutiae data, never null.
+     */
+    public MinutiaeData isoCardCCGetMinutiaeData(byte[] isoCCTemplate) {
+        final IntByReference dataSize = new IntByReference();
+        final IntByReference minutiaeCount = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.ISO_CARD_CC_GetMinutiaeData(isoCCTemplate, minutiaeCount, null, dataSize));
+        final byte[] data = new byte[dataSize.getValue()];
+        check(AnsiIsoNative.INSTANCE.ISO_CARD_CC_GetMinutiaeData(isoCCTemplate, minutiaeCount, data, dataSize));
+        return new MinutiaeData(minutiaeCount.getValue(), data);
+    }
+    
+    /**
+     * Converts raw image into ISO 19794-4 format.
+     * <p/>
+     * This function takes as input raw image, encodes this image in format specified and embeds it into ISO 19794-4 format.
+     * @param rawImage Pointer to the uncompressed raw image
+     * @param fingerPosition Indicates finger position. This information will be stored in the header of resulting ISO 19794-4 image data
+     * @param imageFormat
+     * @param compressionRate Indicates compression rate to be used in case of WSQ or JPEG2000 formats. For other formats, this parameter is ignored.
+     * @return Pointer where output ISO 19794-4 image data will be stored.
+     */
+    public byte[] convertRawToIso19794_4(RawImage rawImage, FingerPosition fingerPosition, IsoImageFormat imageFormat, int compressionRate) {
+        rawImage.checkHasDPI();
+        final IntByReference length = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.IEngine_ConvertRawToIso19794_4(rawImage.raw, rawImage.width, rawImage.height, (byte) fingerPosition.ordinal(), imageFormat.cval, rawImage.dpiX, rawImage.dpiY, null, compressionRate, length));
+        final byte[] result = new byte[length.getValue()];
+        check(AnsiIsoNative.INSTANCE.IEngine_ConvertRawToIso19794_4(rawImage.raw, rawImage.width, rawImage.height, (byte) fingerPosition.ordinal(), imageFormat.cval, rawImage.dpiX, rawImage.dpiY, result, compressionRate, length));
+        return result;
+    }
+    
+    public static class ISO19794_4Meta {
+        public final RawImage raw;
+        public final FingerPosition fingerPosition;
+        public final IsoImageFormat imageFormat;
+
+        public ISO19794_4Meta(RawImage raw, FingerPosition fingerPosition, IsoImageFormat imageFormat) {
+            this.raw = raw;
+            this.fingerPosition = fingerPosition;
+            this.imageFormat = imageFormat;
+        }
+    }
+    
+    /**
+     * Converts ISO 19794-4 format into raw image format.<p/>
+     * This function takes as input image stored in ISO 19794-4 format and converts it into raw format.
+     * @param isoFingerImage Pointer to ISO 19794-4 image data
+     * @param width
+     * @param height
+     * @param fingerPosition
+     * @param imageFormat
+     * @param dpiX
+     * @param dpiY
+     * @param rawImage
+     * @param rawImageLength
+     * @return raw image, never null.
+     */
+    public ISO19794_4Meta convertIso19794_4ToRaw(byte[] isoFingerImage) {
+        final IntByReference width = new IntByReference();
+        final IntByReference height = new IntByReference();
+        final IntByReference dpiX = new IntByReference();
+        final IntByReference dpiY = new IntByReference();
+        final ByteByReference fingerPosition = new ByteByReference();
+        final ByteByReference imageFormat = new ByteByReference();
+        final IntByReference rawImageLength = new IntByReference();
+        check(AnsiIsoNative.INSTANCE.IEngine_ConvertIso19794_4ToRaw(isoFingerImage, isoFingerImage.length, width, height, fingerPosition, imageFormat, dpiX, dpiY, null, rawImageLength));
+        final byte[] raw = new byte[rawImageLength.getValue()];
+        check(AnsiIsoNative.INSTANCE.IEngine_ConvertIso19794_4ToRaw(isoFingerImage, isoFingerImage.length, width, height, fingerPosition, imageFormat, dpiX, dpiY, raw, rawImageLength));
+        final RawImage result = new RawImage(width.getValue(), height.getValue(), raw, dpiX.getValue(), dpiY.getValue());
+        return new ISO19794_4Meta(result, FingerPosition.values()[fingerPosition.getValue()], IsoImageFormat.fromCVal(imageFormat.getValue()));
     }
 }
