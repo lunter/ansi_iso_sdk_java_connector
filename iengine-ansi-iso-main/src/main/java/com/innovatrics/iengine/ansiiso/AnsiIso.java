@@ -12,7 +12,7 @@ import com.sun.jna.ptr.IntByReference;
  */
 public class AnsiIso {
 
-    static void checkNotNull(String name, Object obj) {
+    protected static void checkNotNull(String name, Object obj) {
         if (obj == null) {
             throw new IllegalArgumentException("Parameter " + name + " is null");
         }
@@ -173,7 +173,7 @@ public class AnsiIso {
         int IEngine_ConvertIso19794_4ToRaw(byte[] isoFingerImage, int isoImageLength,IntByReference width,IntByReference height,ByteByReference fingerPosition, ByteByReference imageFormat, IntByReference dpiX, IntByReference dpiY, byte[] rawImage,IntByReference rawImageLength);
     }
 
-    void check(int result) {
+    protected void check(int result) {
         String errMsg = null;
         switch (result) {
             case AnsiIsoNative.IENGINE_E_NOERROR:
