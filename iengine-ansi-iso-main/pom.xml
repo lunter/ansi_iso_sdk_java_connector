@@ -3,7 +3,7 @@
     <parent>
       <groupId>com.innovatrics.iengine.ansiiso</groupId>
       <artifactId>iengine-ansi-iso</artifactId>
-      <version>1.6</version>
+      <version>1.7-SNAPSHOT</version>
     </parent>
     <artifactId>iengine-ansi-iso-main</artifactId>
     <packaging>jar</packaging>
