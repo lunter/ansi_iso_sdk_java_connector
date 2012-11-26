@@ -12,7 +12,7 @@ import com.sun.jna.ptr.IntByReference;
  */
 public class AnsiIso {
 
-    protected static void checkNotNull(String name, Object obj) {
+    public static void checkNotNull(String name, Object obj) {
         if (obj == null) {
             throw new IllegalArgumentException("Parameter " + name + " is null");
         }

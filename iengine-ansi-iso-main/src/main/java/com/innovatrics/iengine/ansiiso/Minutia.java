@@ -6,7 +6,7 @@ package com.innovatrics.iengine.ansiiso;
 public final class Minutia {
 
     /**
-     * Minutia angle.
+     * Minutia angle, not null.
      */
     public final Angle angle;
     /**
@@ -18,11 +18,13 @@ public final class Minutia {
      */
     public final int y;
     /**
-     * Minutiae type (bifurcation/ending)
+     * Minutiae type (bifurcation/ending), not null.
      */
     public final MinutiaeTypeEnum type;
 
     public Minutia(Angle angle, int x, int y, MinutiaeTypeEnum type) {
+        AnsiIso.checkNotNull("angle", angle);
+        AnsiIso.checkNotNull("type", type);
 	this.angle = angle;
 	this.x = x;
 	this.y = y;
